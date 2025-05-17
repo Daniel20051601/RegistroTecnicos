@@ -79,7 +79,8 @@
                                 <a href="/Prestamo/Edit/@tecnico.TecnicoId" class="btn btn-outline-primary bi bi-pencil-square"></a>       
                             </td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-danger bi bi-trash" @onclick='() => Eliminar(tecnico.TecnicoId)'> </button>
+                                <a type="button" class="btn btn-danger bi bi-trash" href="/Tecnico/Eliminar/@tecnico.TecnicoId"> </a>
+                                @*<button type="button" class="btn btn-danger bi bi-trash" @onclick='() => Eliminar(tecnico.TecnicoId)'> </button>*@
                             </td>
 
                         </tr>

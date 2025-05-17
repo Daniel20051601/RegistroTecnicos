@@ -1,0 +1,87 @@
+﻿@page "/Tecnico/Eliminar/{TecnicoId:int}" 
+@using RegistroTecnicos.Models
+@inject TecnicosService tecnicosService
+@inject Blazored.Toast.Services.IToastService toastService 
+@inject NavigationManager navigationManager 
+@rendermode InteractiveServer 
+
+<PageTitle>Eliminar Técnico</PageTitle>
+
+@if (Tecnico == null)
+{
+    <p><em>Cargando datos del técnico o técnico no encontrado...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-primary text-white border-bottom-0">
+                <h5 class="card-title ">Eliminar Técnico</h5>
+            </div>
+            <div class="card-header text-danger">
+                <h6 class="card-title ">¿Estás seguro de que quieres eliminar el Técnico?</h6>
+            </div>
+
+            <div>
+                <div class="card-header">
+                    <h5 class="card-title text-center"><strong>Datos del Técnico</strong></h5>
+                </div>
+
+                <div class="card-body">
+                    <p><strong>TecnicoId: </strong>@Tecnico.TecnicoId</p>
+                    <p><strong>Nombre: </strong>@Tecnico.Nombre</p>
+                    <p><strong>Sueldo por hora: </strong>@Tecnico.SueldoPorHora</p>
+                </div>
+            </div>
+
+            <div class="text-center card-footer"> 
+                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="EliminarTecnicoConfirmado"> Eliminar</button>
+                <a href="/Tecnico/Index" class="btn btn-outline-primary">
+                    <span class="bi bi-box-arrow-left"></span> Volver
+                </a>
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int TecnicoId { get; set; } 
+
+    public Tecnicos? Tecnico { get; set; } 
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        Tecnico = await tecnicosService.Buscar(TecnicoId);
+
+        if (Tecnico == null)
+        {
+            toastService.ShowError($"Técnico con ID {TecnicoId} no encontrado.");
+            navigationManager.NavigateTo("/Tecnico/Index"); 
+        }
+    }
+
+    /// <summary>
+    /// Método que se ejecuta al hacer clic en el botón "Eliminar".
+    /// Intenta eliminar el técnico y proporciona retroalimentación al usuario.
+    /// </summary>
+    private async Task EliminarTecnicoConfirmado()
+    {
+        if (Tecnico != null)
+        {
+            var eliminadoExitosamente = await tecnicosService.Eliminar(Tecnico.TecnicoId);
+
+            if (eliminadoExitosamente)
+            {
+                toastService.ShowSuccess("Técnico eliminado correctamente.");
+                navigationManager.NavigateTo("/Tecnico/Index"); 
+            }
+            else
+            {
+                toastService.ShowError("No se pudo eliminar el técnico. Verifique si existen dependencias o un error en el servidor.");
+            }
+        }
+    }
+}

@@ -41,18 +41,18 @@ namespace RegistroTecnicos.Services
             }
         }
 
-        public async Task<bool> Buscar(int tecnicoId)
+        public async Task<Tecnicos?> Buscar(int TecnicoId)
         {
-            await using var contexto = await DbFactory.CreateDbContextAsync();
-            return await contexto.Tecnicos
-                ///.Include(t=>t.TecnicoId)
-                .FirstOrDefaultAsync(t => t.TecnicoId == tecnicoId) != null;
+            await using var context = await DbFactory.CreateDbContextAsync();
+            return await context.Tecnicos
+                .FirstOrDefaultAsync(t => t.TecnicoId == TecnicoId); 
         }
 
         public async Task<bool> Eliminar(int tecnicoId)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
-            return await contexto.Tecnicos.AsNoTracking()
+            return await contexto.Tecnicos
+                .AsNoTracking()
                 .Where(t => t.TecnicoId == tecnicoId)
                 .ExecuteDeleteAsync() > 0;
         }
