@@ -45,7 +45,7 @@ namespace RegistroTecnicos.Services
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
             return await contexto.Tecnicos
-                .Include(t=>t.TecnicoId)
+                ///.Include(t=>t.TecnicoId)
                 .FirstOrDefaultAsync(t => t.TecnicoId == tecnicoId) != null;
         }
 
@@ -61,7 +61,7 @@ namespace RegistroTecnicos.Services
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
             return await contexto.Tecnicos
-                .Include(t => t.TecnicoId)
+                ///.Include(t => t.TecnicoId)
                 .Where(criterio)
                 .AsNoTracking()
                 .ToListAsync();
