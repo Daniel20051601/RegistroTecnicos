@@ -29,7 +29,7 @@ namespace RegistroTecnicos.Services
             return await contexto.SaveChangesAsync() > 0;
         }
 
-        private async Task<Boolean> Guardar(Tecnicos tecnico)
+        public async Task<bool> Guardar(Tecnicos tecnico)
         {
             if(!await Existe(tecnico.TecnicoId))
             {

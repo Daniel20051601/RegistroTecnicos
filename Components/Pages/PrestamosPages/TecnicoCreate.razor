@@ -1,0 +1,100 @@
+﻿@page "/Tecnico/Create"
+@using Blazored.Toast.Services
+@inject TecnicosService tecnicosService
+@inject Blazored.Toast.Services.IToastService toastService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+<EditForm Model="Tecnico" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Crear Prestamo</h5>
+            </div>
+
+            <div class="card-body">
+
+                @* ID *@
+                <div class="mb-3">
+                    <label for="id" class="form-label">Técnico ID</label>
+                    <InputNumber @bind-Value="Tecnico.TecnicoId" class="form-control" disabled />
+                    <ValidationMessage For="@(() => Tecnico.TecnicoId)" />
+                </div>
+
+                @* Nombre *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombres</strong></label>
+                    <InputText class="form-control" @bind-Value="Tecnico.Nombre" />
+                    <ValidationMessage For="@(() => Tecnico.Nombre)" />
+                </div>
+
+                @* Sueldo por hora *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Sueldo por hora</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Tecnico.SueldoPorHora" />
+                    <ValidationMessage For="@(() => Tecnico.SueldoPorHora)" />
+                </div>
+
+            </div>
+
+            <div class="card-footer text-center mt-2">
+                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
+                    <i class ="bi bi-plus-lg"></i>Nuevo
+                </button>
+
+                <button type="submit" class="btn btn-outline-success"> Guardar</button>
+                <a href="/Tecnico/Index" class="btn btn-outline-danger">
+                    <span class="bi bi-arrow-left"></span> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    public Tecnicos Tecnico { get; set; } = new Tecnicos();
+    public string Mensaje { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Tecnico.TecnicoId = await ObtenerSiguienteId();
+    }
+
+    private async Task<int> ObtenerSiguienteId()
+    {
+        var lista = await tecnicosService.Listar(t => true);
+        if (lista.Count == 0)
+            return 1;
+
+        return lista.Max(t => t.TecnicoId) + 1;
+    }
+
+
+
+    public async Task Guardar()
+    {
+        var creado = await tecnicosService.Guardar(Tecnico);
+
+        if (creado)
+        {
+            toastService.ShowSuccess("Tecnico Guardado correctamente");
+            navigationManager.NavigateTo("/Tecnico/Index");
+
+        }
+        else
+        {
+            toastService.ShowError("No se pudo guardar correctamente");
+        }
+    }
+
+    public async Task Nuevo()
+    {
+        Tecnico = new Tecnicos(); // Crea una nueva instancia para limpiar los campos
+        Tecnico.TecnicoId = await ObtenerSiguienteId(); // Obtiene el siguiente ID para el nuevo registro
+    }
+
+}

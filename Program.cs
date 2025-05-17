@@ -1,3 +1,4 @@
+using Blazored.Toast;
 using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.Components;
 using RegistroTecnicos.DAL;
@@ -18,6 +19,9 @@ builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlite(conS
 
 //Inyeccion del service
 builder.Services.AddScoped<TecnicosService>();
+
+builder.Services.AddBlazoredToast();
+
 
 var app = builder.Build();
 
