@@ -75,12 +75,11 @@
                             <td> @tecnico.Nombre</td>
                             <td> @tecnico.SueldoPorHora</td>
 
-                            <td class="text-center">
-                                <a href="/Prestamo/Edit/@tecnico.TecnicoId" class="btn btn-outline-primary bi bi-pencil-square"></a>       
+                            <td>
+                                <a href="/Tecnico/Edit/@tecnico.TecnicoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
                             </td>
-                            <td class="text-center">
-                                <a type="button" class="btn btn-danger bi bi-trash" href="/Tecnico/Eliminar/@tecnico.TecnicoId"> </a>
-                                @*<button type="button" class="btn btn-danger bi bi-trash" @onclick='() => Eliminar(tecnico.TecnicoId)'> </button>*@
+                            <td>
+                                <a type="button" class="btn btn-danger bi bi-trash" href="/Tecnico/Eliminar/@tecnico.TecnicoId"> </a>                              
                             </td>
 
                         </tr>

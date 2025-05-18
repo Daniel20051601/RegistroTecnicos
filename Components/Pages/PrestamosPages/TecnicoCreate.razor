@@ -73,8 +73,6 @@
         return lista.Max(t => t.TecnicoId) + 1;
     }
 
-
-
     public async Task Guardar()
     {
         var creado = await tecnicosService.Guardar(Tecnico);
@@ -93,8 +91,8 @@
 
     public async Task Nuevo()
     {
-        Tecnico = new Tecnicos(); // Crea una nueva instancia para limpiar los campos
-        Tecnico.TecnicoId = await ObtenerSiguienteId(); // Obtiene el siguiente ID para el nuevo registro
+        Tecnico = new Tecnicos(); 
+        Tecnico.TecnicoId = await ObtenerSiguienteId(); 
     }
 
 }

@@ -1,7 +1,89 @@
-﻿@page "/Tecnico/Edit"
+﻿@page "/Tecnico/Edit/{TecnicoId:int}"
+@inject TecnicosService tecnicosService
+@inject Blazored.Toast.Services.IToastService toastService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
 
-<h3>TecnicoEdit</h3>
+<PageTitle>Editar Técnico</PageTitle>
+
+@if (Tecnico == null)
+{
+    <p><em>Cargando datos del técnico o técnico no encontrado...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-primary text-white border-bottom-0">
+                <h5 class="card-title">Editar Técnico</h5>
+            </div>
+            
+            <EditForm Model="Tecnico" OnValidSubmit="GuardarTecnico"> 
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="tecnicoId" class="form-label"><strong>TecnicoId:</strong></label>
+                        <InputNumber id="tecnicoId" @bind-Value="Tecnico.TecnicoId" class="form-control" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label"><strong>Nombre:</strong></label>
+                        <InputText id="nombre" @bind-Value="Tecnico.Nombre" class="form-control" />
+                        <ValidationMessage For="@(() => Tecnico.Nombre)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="sueldo" class="form-label"><strong>Sueldo por Hora:</strong></label>
+                        <InputNumber id="sueldo" @bind-Value="Tecnico.SueldoPorHora" class="form-control" />
+                        <ValidationMessage For="@(() => Tecnico.SueldoPorHora)" />
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-outline-success bi bi-save"> Guardar</button>
+                    <a href="/Tecnico/Index" class="btn btn-outline-primary">
+                        <span class="bi bi-box-arrow-left"></span> Volver
+                    </a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
 
 @code {
+    [Parameter]
+    public int TecnicoId { get; set; }
 
+    public RegistroTecnicos.Models.Tecnicos? Tecnico { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Tecnico = await tecnicosService.Buscar(TecnicoId);
+
+        if (Tecnico == null)
+        {
+            toastService.ShowError($"Técnico con ID {TecnicoId} no encontrado.");
+            navigationManager.NavigateTo("/Tecnico/Index");
+        }
+    }
+
+    private async Task GuardarTecnico()
+    {
+        if (Tecnico != null)
+        {
+            var guardadoExitosamente = await tecnicosService.Guardar(Tecnico);
+
+            if (guardadoExitosamente)
+            {
+                toastService.ShowSuccess("Técnico actualizado correctamente.");
+                navigationManager.NavigateTo("/Tecnico/Index");
+            }
+            else
+            {
+                toastService.ShowError("No se pudo actualizar el técnico. Verifique los datos o si ya existe un técnico con el mismo nombre.");
+            }
+        }
+    }
 }
