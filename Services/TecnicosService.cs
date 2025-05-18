@@ -3,7 +3,6 @@ using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
 using System.Linq.Expressions;
 
-
 namespace RegistroTecnicos.Services
 {
     public class TecnicosService(IDbContextFactory<Contexto> DbFactory)
@@ -15,9 +14,24 @@ namespace RegistroTecnicos.Services
                 .AnyAsync(t => t.TecnicoId == TecnicoId);
         }
 
+        public async Task<bool> ExisteNombre(string nombre, int? idExcluir = null)
+        {
+
+            await using var context = await DbFactory.CreateDbContextAsync();
+            var query = context.Tecnicos.AsQueryable();
+
+            if (idExcluir.HasValue)
+            {
+
+                query = query.Where(t => t.TecnicoId != idExcluir.Value);
+            }
+
+            return await query.AnyAsync(t => t.Nombre == nombre);
+        }
+
         private async Task<bool> Insertar(Tecnicos tecnico)
         {
-            await using var contexto = await DbFactory.CreateDbContextAsync ();
+            await using var contexto = await DbFactory.CreateDbContextAsync();
             contexto.Tecnicos.Add(tecnico);
             return await contexto.SaveChangesAsync() > 0;
         }
@@ -31,12 +45,20 @@ namespace RegistroTecnicos.Services
 
         public async Task<bool> Guardar(Tecnicos tecnico)
         {
-            if(!await Existe(tecnico.TecnicoId))
+            if (tecnico.TecnicoId == 0)
             {
+                if (await ExisteNombre(tecnico.Nombre))
+                {
+                    return false;
+                }
                 return await Insertar(tecnico);
             }
             else
             {
+                if (await ExisteNombre(tecnico.Nombre, tecnico.TecnicoId))
+                {
+                    return false;
+                }
                 return await Modificar(tecnico);
             }
         }
@@ -45,27 +67,34 @@ namespace RegistroTecnicos.Services
         {
             await using var context = await DbFactory.CreateDbContextAsync();
             return await context.Tecnicos
-                .FirstOrDefaultAsync(t => t.TecnicoId == TecnicoId); 
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TecnicoId == TecnicoId);
         }
 
         public async Task<bool> Eliminar(int tecnicoId)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
-            return await contexto.Tecnicos
-                .AsNoTracking()
-                .Where(t => t.TecnicoId == tecnicoId)
-                .ExecuteDeleteAsync() > 0;
+            try
+            {
+                var rowsAffected = await contexto.Tecnicos
+                    .Where(t => t.TecnicoId == tecnicoId)
+                    .ExecuteDeleteAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al eliminar técnico en el servicio: {ex.Message}");
+                return false;
+            }
         }
 
-        public async Task<List<Tecnicos>> Listar(Expression<Func<Tecnicos,bool>> criterio)
+        public async Task<List<Tecnicos>> Listar(Expression<Func<Tecnicos, bool>> criterio)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
             return await contexto.Tecnicos
-                ///.Include(t => t.TecnicoId)
                 .Where(criterio)
                 .AsNoTracking()
                 .ToListAsync();
-
         }
     }
 }

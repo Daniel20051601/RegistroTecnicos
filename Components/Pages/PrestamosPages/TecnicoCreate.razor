@@ -5,33 +5,31 @@
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Crear Técnico</PageTitle>
+
 <EditForm Model="Tecnico" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-
+    <ValidationSummary />
+    <label class="text-danger">@Message</label>
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center bg-primary text-white border-bottom-0">
-                <h5 class="card-title ">Crear Prestamo</h5>
+                <h5 class="card-title ">Crear Técnico</h5>
             </div>
 
             <div class="card-body">
 
-                @* ID *@
                 <div class="mb-3">
                     <label for="id" class="form-label">Técnico ID</label>
-                    <InputNumber @bind-Value="Tecnico.TecnicoId" class="form-control" disabled />
-                    <ValidationMessage For="@(() => Tecnico.TecnicoId)" />
+                    <input class="form-control" value="@ProximoId" disabled />
                 </div>
-
-                @* Nombre *@
+                    
                 <div class="mb-3">
                     <label class="form-label"><strong>Nombres</strong></label>
                     <InputText class="form-control" @bind-Value="Tecnico.Nombre" />
                     <ValidationMessage For="@(() => Tecnico.Nombre)" />
                 </div>
 
-                @* Sueldo por hora *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Sueldo por hora</strong></label>
                     <InputNumber class="form-control" @bind-Value="Tecnico.SueldoPorHora" />
@@ -42,7 +40,7 @@
 
             <div class="card-footer text-center mt-2">
                 <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
-                    <i class ="bi bi-plus-lg"></i>Nuevo
+                    <i class="bi bi-plus-lg"></i>Nuevo
                 </button>
 
                 <button type="submit" class="btn btn-outline-success"> Guardar</button>
@@ -56,18 +54,19 @@
 
 
 @code {
-    public Tecnicos Tecnico { get; set; } = new Tecnicos();
-    public string Mensaje { get; set; } = string.Empty;
+    public RegistroTecnicos.Models.Tecnicos Tecnico { get; set; } = new RegistroTecnicos.Models.Tecnicos();
+    private string Message { get; set; } = string.Empty;
+    private int ProximoId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Tecnico.TecnicoId = await ObtenerSiguienteId();
+        ProximoId = await ObtenerSiguienteId();
     }
 
     private async Task<int> ObtenerSiguienteId()
     {
         var lista = await tecnicosService.Listar(t => true);
-        if (lista.Count == 0)
+        if (lista == null || !lista.Any())
             return 1;
 
         return lista.Max(t => t.TecnicoId) + 1;
@@ -75,24 +74,31 @@
 
     public async Task Guardar()
     {
+        if (await tecnicosService.ExisteNombre(Tecnico.Nombre))
+        {
+            toastService.ShowError("Ya existe un técnico con este nombre. Por favor, elige un nombre diferente.");
+            Message = "Ya existe un técnico con este nombre. Por favor, elige un nombre diferente.";
+            return;
+        }
+
         var creado = await tecnicosService.Guardar(Tecnico);
 
         if (creado)
         {
-            toastService.ShowSuccess("Tecnico Guardado correctamente");
-            navigationManager.NavigateTo("/Tecnico/Index");
-
+            toastService.ShowSuccess("Técnico guardado correctamente.");
+            await Nuevo();
         }
         else
         {
-            toastService.ShowError("No se pudo guardar correctamente");
+            toastService.ShowError("No se pudo guardar correctamente el técnico. Verifica los datos.");
         }
     }
 
     public async Task Nuevo()
     {
-        Tecnico = new Tecnicos(); 
-        Tecnico.TecnicoId = await ObtenerSiguienteId(); 
+        Message = string.Empty;
+        Tecnico = new RegistroTecnicos.Models.Tecnicos();
+        ProximoId = await ObtenerSiguienteId();
+        StateHasChanged();
     }
-
 }

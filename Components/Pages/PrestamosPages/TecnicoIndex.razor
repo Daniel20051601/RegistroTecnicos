@@ -10,7 +10,6 @@
             <h5 class="card-title mb-0">Consulta de Técnicos</h5>
         </div>
 
-
         <div class="card-body">
 
             @*labels*@
@@ -20,41 +19,35 @@
                 <div class="col-3">
                     <label class="col-form-label"><strong>Filtrar por</strong></label>
                 </div>
-            
+
                 @* Botón Crear  *@
                 <div class="col text-end">
                     <a href="/Tecnico/Create" class="btn btn-success">
                         <span class="bi bi-plus-square"></span> Crear
                     </a>
                 </div>
-                
+
             </div>
 
             @*Inputs y botones*@
             <div class="row align-items-center">
                 @*filtro*@
                 <div class="col-3">
-                    <InputSelect class="form-select" @bind-Value="Filtro">
-                        <option value="" selected disabled>Elija una opción</option>
-                        <option value="PrestamoID">TecnicoID</option>
-                        <option value="Concepto">Nombre</option>
+                    <InputSelect class="form-select" @bind-Value="Filtro" @onchange="Ordenar">
+                        <option value="TecnicoId" selected>TécnicoID</option>
+                        <option value="Nombre">Nombre</option>
                     </InputSelect>
                 </div>
 
                 @*Busqueda*@
                 <div class="col-4">
                     <div class="input-group">
-                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                        <input class="form-control" @bind="ValorFiltro" @oninput="Buscar" placeholder="Buscar por nombre" />
                         <button type="button" class="btn btn-primary" @onclick="Buscar">
                             <i class="bi bi-search me-1"></i> Buscar
                         </button>
-
-                        
                     </div>
-                    
                 </div>
-
-
             </div>
 
             <table class="table table-hover">
@@ -79,9 +72,8 @@
                                 <a href="/Tecnico/Edit/@tecnico.TecnicoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
                             </td>
                             <td>
-                                <a type="button" class="btn btn-danger bi bi-trash" href="/Tecnico/Eliminar/@tecnico.TecnicoId"> </a>                              
+                                <a type="button" class="btn btn-danger bi bi-trash" href="/Tecnico/Eliminar/@tecnico.TecnicoId"> </a>
                             </td>
-
                         </tr>
                     }
                 </tbody>
@@ -90,18 +82,45 @@
     </div>
 </div>
 
-
-
-
 @code {
     public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
-
-    public string Filtro { get; set; } = string.Empty;
+    public string Filtro { get; set; } = "TecnicoId";
     public string ValorFiltro { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        ListaTecnicos = await tecnicosService.Listar(t => t.TecnicoId > 0);
+        await CargarYOrdenar();
+    }
+
+    private async Task CargarYOrdenar()
+    {
+        // Carga todos los técnicos
+        var lista = await tecnicosService.Listar(t => t.TecnicoId > 0);
+
+        // Aplica filtro de búsqueda por nombre si hay texto
+        if (!string.IsNullOrWhiteSpace(ValorFiltro))
+        {
+            lista = lista
+                .Where(t => t.Nombre != null && t.Nombre.ToLower().Contains(ValorFiltro.ToLower()))
+                .ToList();
+        }
+
+        // Ordena según el filtro seleccionado
+        if (Filtro == "Nombre")
+            ListaTecnicos = lista.OrderBy(t => t.Nombre).ToList();
+        else
+            ListaTecnicos = lista.OrderBy(t => t.TecnicoId).ToList();
+    }
+
+    private async Task Buscar()
+    {
+        await CargarYOrdenar();
+    }
+
+    private async Task Ordenar(ChangeEventArgs e)
+    {
+        Filtro = e.Value?.ToString() ?? "TecnicoId";
+        await CargarYOrdenar();
     }
 
     private async Task Eliminar(int id)
@@ -109,27 +128,7 @@
         var result = await tecnicosService.Eliminar(id);
         if (result)
         {
-            await Restablecer();
+            await CargarYOrdenar();
         }
     }
-
-    private async Task Buscar()
-    {
-        if (ValorFiltro.Trim() != "")
-        {
-            if (Filtro == "Nombre")
-            {
-                ListaTecnicos = await tecnicosService.Listar(t => t.Nombre.ToLower().Contains(ValorFiltro.ToLower()));
-            }
-        }
-        else
-            ListaTecnicos = await tecnicosService.Listar(t => t.TecnicoId > 0);
-    }
-    private async Task Restablecer()
-    {
-        ListaTecnicos = await tecnicosService.Listar(t => t.TecnicoId > 0);
-        Filtro = string.Empty;
-        ValorFiltro = string.Empty;
-    }
-
 }

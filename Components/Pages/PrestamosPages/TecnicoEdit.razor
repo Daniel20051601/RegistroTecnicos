@@ -1,6 +1,6 @@
 ﻿@page "/Tecnico/Edit/{TecnicoId:int}"
 @inject TecnicosService tecnicosService
-@inject Blazored.Toast.Services.IToastService toastService
+@inject IToastService toastService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
@@ -17,8 +17,8 @@ else
             <div class="card-header text-center bg-primary text-white border-bottom-0">
                 <h5 class="card-title">Editar Técnico</h5>
             </div>
-            
-            <EditForm Model="Tecnico" OnValidSubmit="GuardarTecnico"> 
+
+            <EditForm Model="Tecnico" OnValidSubmit="GuardarTecnico">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
@@ -73,6 +73,15 @@ else
     {
         if (Tecnico != null)
         {
+            bool nombreDuplicado = await tecnicosService.ExisteNombre(Tecnico.Nombre, Tecnico.TecnicoId);
+
+            if (nombreDuplicado)
+            {
+                toastService.ShowError("Ya existe otro técnico con este nombre. Por favor, elige un nombre diferente.");
+               
+                return;
+            }
+
             var guardadoExitosamente = await tecnicosService.Guardar(Tecnico);
 
             if (guardadoExitosamente)
@@ -82,7 +91,8 @@ else
             }
             else
             {
-                toastService.ShowError("No se pudo actualizar el técnico. Verifique los datos o si ya existe un técnico con el mismo nombre.");
+                toastService.ShowError("No se pudo actualizar el técnico. Verifique los datos o intente nuevamente.");
+               
             }
         }
     }

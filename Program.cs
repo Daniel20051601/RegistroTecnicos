@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddBlazoredToast();
+
 //Obtenemos el ConStr para usarlo en el contexto
 var conStr = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -19,8 +21,6 @@ builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlite(conS
 
 //Inyeccion del service
 builder.Services.AddScoped<TecnicosService>();
-
-builder.Services.AddBlazoredToast();
 
 
 var app = builder.Build();
