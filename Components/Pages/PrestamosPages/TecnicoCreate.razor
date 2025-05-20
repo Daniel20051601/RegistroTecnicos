@@ -1,7 +1,6 @@
 ﻿@page "/Tecnico/Create"
-@using Blazored.Toast.Services
 @inject TecnicosService tecnicosService
-@inject Blazored.Toast.Services.IToastService toastService
+@inject IToastService toastService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
@@ -77,7 +76,7 @@
         if (await tecnicosService.ExisteNombre(Tecnico.Nombre))
         {
             toastService.ShowError("Ya existe un técnico con este nombre. Por favor, elige un nombre diferente.");
-            Message = "Ya existe un técnico con este nombre. Por favor, elige un nombre diferente.";
+            ///Message = "Ya existe un técnico con este nombre. Por favor, elige un nombre diferente.";
             return;
         }
 
