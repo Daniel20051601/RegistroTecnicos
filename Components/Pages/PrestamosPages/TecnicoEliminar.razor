@@ -28,17 +28,17 @@ else
                 </div>
 
                 <div class="card-body">
-                    <p><strong>TecnicoId: </strong>@Tecnico.TecnicoId</p>
+                    <p><strong>Técnico Id: </strong>@Tecnico.TecnicoId</p>
                     <p><strong>Nombre: </strong>@Tecnico.Nombre</p>
                     <p><strong>Sueldo por hora: </strong>@Tecnico.SueldoPorHora</p>
                 </div>
             </div>
 
-            <div class="text-center card-footer"> 
-                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="EliminarTecnicoConfirmado"> Eliminar</button>
+            <div class="text-center card-footer">
                 <a href="/Tecnico/Index" class="btn btn-outline-primary">
                     <span class="bi bi-box-arrow-left"></span> Volver
                 </a>
+                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="EliminarTecnicoConfirmado"> Eliminar</button>
             </div>
 
         </div>
