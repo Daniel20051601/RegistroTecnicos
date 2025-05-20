@@ -1,47 +1,40 @@
 ﻿@page "/Tecnico/Index"
-
+@using System.Linq.Expressions
 @inject TecnicosService tecnicosService
+@rendermode InteractiveServer
 
 <PageTitle>Registro de Tecnicos</PageTitle>
+
 <div class="container">
     <div class="card shadow-lg">
-
-        <div class=" card-header d-flex justify-content-center align-items-center p-3">
+        <div class="card-header d-flex justify-content-center align-items-center p-3">
             <h4 class="card-title mb-0">Consulta de Técnicos</h4>
         </div>
-
         <div class="card-body">
 
-            @*labels*@
             <div class="row">
-
-                @*Filtrar por*@
                 <div class="col-3">
                     <label class="col-form-label"><strong>Filtrar por</strong></label>
                 </div>
-
-                @* Botón Crear  *@
                 <div class="col text-end">
                     <a href="/Tecnico/Create" class="btn btn-success">
                         <span class="bi bi-plus-square"></span> Crear
                     </a>
                 </div>
-
             </div>
 
-            <div class="row align-items-center">
-                @*filtro*@
+            <div class="row align-items-center mb-3">
                 <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="Filtro" @onchange="Ordenar">
-                        <option value="TecnicoId" selected>Técnico Id</option>
+                        <option value="TecnicoId">TécnicoId</option>
                         <option value="Nombre">Nombre</option>
                     </InputSelect>
                 </div>
-
-                @*Busqueda*@
                 <div class="col-4">
                     <div class="input-group">
-                        <input class="form-control" @bind="ValorFiltro" @oninput="Buscar" placeholder="Buscar por nombre" />
+                        <input class="form-control"
+                               @bind="ValorFiltro"
+                               placeholder="Buscar por @(Filtro == "Nombre" ? "Nombre" : "ID")" />
                         <button type="button" class="btn btn-primary" @onclick="Buscar">
                             <i class="bi bi-search me-1"></i> Buscar
                         </button>
@@ -50,7 +43,7 @@
             </div>
 
             <table class="table table-hover">
-                <thead class="table  table-striped text-black">
+                <thead class="table-striped text-black">
                     <tr>
                         <th>Técnico Id</th>
                         <th>Nombre</th>
@@ -62,27 +55,26 @@
                     @foreach (var tecnico in ListaTecnicos)
                     {
                         <tr>
-                            <td> @tecnico.TecnicoId</td>
-                            <td> @tecnico.Nombre</td>
+                            <td>@tecnico.TecnicoId</td>
+                            <td>@tecnico.Nombre</td>
+                            <td>@tecnico.SueldoPorHora.ToString("F2")</td>
                             <td>
-                                <span>@tecnico.SueldoPorHora.ToString("F2")</span>
-                            </td>
-
-                            <td>
-                                <a href="/Tecnico/Edit/@tecnico.TecnicoId" class="btn btn-outline-primary bi bi-pencil-square"></a>
+                                <a href="/Tecnico/Edit/@tecnico.TecnicoId"
+                                   class="btn btn-outline-primary bi bi-pencil-square"></a>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+
         </div>
     </div>
 </div>
 
 @code {
-    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+    public List<Tecnicos> ListaTecnicos { get; set; } = new();
     public string Filtro { get; set; } = "TecnicoId";
-    public string ValorFiltro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,41 +83,45 @@
 
     private async Task CargarYOrdenar()
     {
-        // Carga todos los técnicos
-        var lista = await tecnicosService.Listar(t => t.TecnicoId > 0);
+   
+        Expression<Func<Tecnicos, bool>> criterio;
 
-        // Aplica filtro de búsqueda por nombre si hay texto
         if (!string.IsNullOrWhiteSpace(ValorFiltro))
         {
-            lista = lista
-                .Where(t => t.Nombre != null && t.Nombre.ToLower().Contains(ValorFiltro.ToLower()))
-                .ToList();
+            if (Filtro == "Nombre")
+            {
+                var nombreBuscado = ValorFiltro.ToLower();
+                criterio = t => t.Nombre != null
+                                && t.Nombre.ToLower().Contains(nombreBuscado);
+            }
+            else 
+            {
+                if (int.TryParse(ValorFiltro, out int idBuscado))
+                    criterio = t => t.TecnicoId == idBuscado;
+                else
+                    criterio = t => false;
+            }
+        }
+        else
+        {
+            criterio = t => true; 
         }
 
-        // Ordena según el filtro seleccionado
-        if (Filtro == "Nombre")
-            ListaTecnicos = lista.OrderBy(t => t.Nombre).ToList();
-        else
-            ListaTecnicos = lista.OrderBy(t => t.TecnicoId).ToList();
+        var lista = await tecnicosService.Listar(criterio);
+
+        
+        ListaTecnicos = Filtro == "Nombre"
+            ? lista.OrderBy(t => t.Nombre).ToList()
+            : lista.OrderBy(t => t.TecnicoId).ToList();
     }
 
     private async Task Buscar()
-    {
-        await CargarYOrdenar();
-    }
+        => await CargarYOrdenar();
 
     private async Task Ordenar(ChangeEventArgs e)
     {
         Filtro = e.Value?.ToString() ?? "TecnicoId";
+        ValorFiltro = "";            
         await CargarYOrdenar();
-    }
-
-    private async Task Eliminar(int id)
-    {
-        var result = await tecnicosService.Eliminar(id);
-        if (result)
-        {
-            await CargarYOrdenar();
-        }
     }
 }
