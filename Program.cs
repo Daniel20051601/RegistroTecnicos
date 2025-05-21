@@ -11,7 +11,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddBlazoredToast();
 
-builder.Services.AddDbContext<Contexto>(options =>
+builder.Services.AddDbContextFactory<Contexto>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
         npgsqlOptions =>
         {
