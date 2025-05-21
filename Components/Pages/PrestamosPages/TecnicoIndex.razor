@@ -3,6 +3,7 @@
 @using System.Linq.Expressions
 @inject TecnicosService tecnicosService
 @rendermode InteractiveServer
+@attribute [StreamRendering(true)]
 
 <PageTitle>Registro de Tecnicos</PageTitle>
 
@@ -43,31 +44,40 @@
                 </div>
             </div>
 
-            <table class="table table-hover">
-                <thead class="table-striped text-black">
-                    <tr>
-                        <th>Técnico Id</th>
-                        <th>Nombre</th>
-                        <th>Sueldo</th>
-                        <th>Editar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var tecnico in ListaTecnicos)
-                    {
+           @if (isLoading)
+            {
+                <div class="text-center my-4">
+                    <div class="spinner-border" role="status"></div>
+                    <span class="ms-2">Cargando técnicos...</span>
+                </div>
+            }
+            else
+            {
+                <table class="table table-hover">
+                    <thead class="table table-striped text-black">
                         <tr>
-                            <td>@tecnico.TecnicoId</td>
-                            <td>@tecnico.Nombre</td>
-                            <td>@tecnico.SueldoPorHora.ToString("F2")</td>
-                            <td>
-                                <a href="/Tecnico/Edit/@tecnico.TecnicoId"
-                                   class="btn btn-outline-primary bi bi-pencil-square"></a>
-                            </td>
+                            <th>TecnicoId</th>
+                            <th>Nombre</th>
+                            <th>Sueldo</th>
+                            <th>Editar</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-
+                    </thead>
+                    <tbody>
+                        @foreach (var tecnico in ListaTecnicos)
+                        {
+                            <tr>
+                                <td>@tecnico.TecnicoId</td>
+                                <td>@tecnico.Nombre</td>
+                                <td>@tecnico.SueldoPorHora.ToString("F2")</td>
+                                <td>
+                                    <a href="/Tecnico/Edit/@tecnico.TecnicoId"
+                                       class="btn btn-outline-primary bi bi-pencil-square"></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         </div>
     </div>
 </div>
@@ -75,45 +85,57 @@
 @code {
     public List<Tecnicos> ListaTecnicos { get; set; } = new();
     public string Filtro { get; set; } = "TecnicoId";
-    public string ValorFiltro { get; set; } = "";
+    public string ValorFiltro { get; set; } = string.Empty;
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
         await CargarYOrdenar();
+        isLoading = false;
+        StateHasChanged();
     }
 
     private async Task CargarYOrdenar()
     {
-   
-        Expression<Func<Tecnicos, bool>> criterio;
-
-        if (!string.IsNullOrWhiteSpace(ValorFiltro))
+        try
         {
-            if (Filtro == "Nombre")
+            Expression<Func<Tecnicos, bool>> criterio;
+
+            if (!string.IsNullOrWhiteSpace(ValorFiltro))
             {
-                var nombreBuscado = ValorFiltro.ToLower();
-                criterio = t => t.Nombre != null
-                                && t.Nombre.ToLower().Contains(nombreBuscado);
-            }
-            else 
-            {
-                if (int.TryParse(ValorFiltro, out int idBuscado))
-                    criterio = t => t.TecnicoId == idBuscado;
+                if (Filtro == "Nombre")
+                {
+                    var nombreBuscado = ValorFiltro.ToLower();
+                    criterio = t => t.Nombre != null
+                                    && t.Nombre.ToLower().Contains(nombreBuscado);
+                }
                 else
-                    criterio = t => false;
+                {
+                    if (int.TryParse(ValorFiltro, out int idBuscado))
+                        criterio = t => t.TecnicoId == idBuscado;
+                    else
+                        criterio = t => false;
+                }
             }
-        }
-        else
+            else
+            {
+                criterio = t => true;
+            }
+
+            var lista = await tecnicosService.Listar(criterio);
+
+
+            ListaTecnicos = Filtro == "Nombre"
+                ? lista.OrderBy(t => t.Nombre).ToList()
+                : lista.OrderBy(t => t.TecnicoId).ToList();
+
+
+        }catch (Exception ex)
         {
-            criterio = t => true; 
+            ListaTecnicos = new List<Tecnicos>();
         }
-
-        var lista = await tecnicosService.Listar(criterio);
-
-        
-        ListaTecnicos = Filtro == "Nombre"
-            ? lista.OrderBy(t => t.Nombre).ToList()
-            : lista.OrderBy(t => t.TecnicoId).ToList();
+    
     }
 
     private async Task Buscar()

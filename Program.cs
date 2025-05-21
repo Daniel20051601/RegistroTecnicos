@@ -6,41 +6,35 @@ using RegistroTecnicos.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddBlazoredToast();
 
-//Obtenemos el ConStr para usarlo en el contexto
-var conStr = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<Contexto>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorCodesToAdd: null
+            );
+        }));
 
-
-//Agregamos el contexto al builder con el ConStr
-builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlite(conStr));
-
-//Inyeccion del service
 builder.Services.AddScoped<TecnicosService>();
-
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<Contexto>();
-    db.Database.Migrate();
-}
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
+app.UseRouting();
 
 app.UseAntiforgery();
 
