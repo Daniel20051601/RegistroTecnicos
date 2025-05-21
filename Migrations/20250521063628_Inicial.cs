@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -14,10 +15,10 @@ namespace RegistroTecnicos.Migrations
                 name: "Tecnicos",
                 columns: table => new
                 {
-                    TecnicoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    SueldoPorHora = table.Column<double>(type: "REAL", nullable: false)
+                    TecnicoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    SueldoPorHora = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {
