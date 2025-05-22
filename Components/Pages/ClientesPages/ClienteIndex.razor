@@ -1,0 +1,159 @@
+﻿@page "/Clientes/Index"
+@using System.Linq.Expressions
+@inject ClienteService clientesService
+@rendermode InteractiveServer
+@attribute [StreamRendering(true)]
+
+<PageTitle>Registro de Clientes</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-center align-items-center p-3">
+            <h4 class="card-title mb-0">Consulta de Clientes</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Filtrar por</strong></label>
+                </div>
+                <div class="col text-end">
+                    <a href="/Cliente/Create" class="btn btn-success">
+                        <span class="bi bi-plus-square"></span> Crear
+                    </a>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="Filtro" @onchange="Ordenar">
+                        <option value="ClienteId">Cliente Id</option>
+                        <option value="Nombre">Nombre</option>
+                    </InputSelect>
+                </div>
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control"
+                               @bind="ValorFiltro"
+                               placeholder="Buscar por @(Filtro == "Nombre" ? "Nombre" : "ID")" />
+                        <button type="button" class="btn btn-primary" @onclick="Buscar">
+                            <i class="bi bi-search me-1"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            @if (isLoading)
+            {
+                <div class="text-center my-4">
+                    <div class="spinner-border" role="status"></div>
+                    <span class="ms-2">Cargando clientes...</span>
+                </div>
+            }
+            else
+            {
+                <table class="table table-hover">
+                    <thead class="table table-striped text-black">
+                        <tr>
+                            <th>Cliente Id</th>
+                            <th>Nombres</th>
+                            <th>Dirección</th>
+                            <th>Rnc</th>
+                            <th>Límite de Crédito</th>
+                            <th>Técnico encargado</th>
+                            <th>Fecha de Ingreso</th>
+                            <th>Editar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cliente in ListaClientes)
+                        {
+                            <tr>
+                                <td>@cliente.ClienteId</td>
+                                <td>@cliente.Nombres</td>
+                                <td>@cliente.Direccion</td>
+                                <td>@cliente.Rnc</td>
+                                <td>@cliente.LimiteCredito.ToString("F2")</td>
+                                <td>@cliente.Tecnico.Nombre</td>
+                                <td>@cliente.FechaIngreso.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <a href="/Tecnico/Edit/@cliente.ClienteId"
+                                       class="btn btn-outline-primary bi bi-pencil-square"></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Clientes> ListaClientes { get; set; } = new();
+    public string Filtro { get; set; } = "ClienteId";
+    public string ValorFiltro { get; set; } = string.Empty;
+    private bool isLoading = true;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        await CargarYOrdenar();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task CargarYOrdenar()
+    {
+        try
+        {
+            Expression<Func<Clientes, bool>> criterio;
+            if (!string.IsNullOrWhiteSpace(ValorFiltro))
+            {
+                if (Filtro == "Nombres")
+                {
+                    var nombreBuscado = ValorFiltro.ToLower();
+                    criterio = c => c.Nombres != null
+                    && c.Nombres.ToLower().Contains(nombreBuscado);
+                }
+                else
+                {
+                    if (int.TryParse(ValorFiltro, out int idBuscado))
+                    {
+                        criterio = c => c.ClienteId == idBuscado;
+                    }
+                    else
+                    {
+                        criterio = c => true;
+                    }
+                }
+            }
+            else
+            {
+                criterio = c => true;
+            }
+
+            var lista = await clientesService.Listar(criterio);
+
+            ListaClientes = Filtro == "Nombre"
+                ? lista.OrderBy(c => c.Nombres).ToList()
+                : lista.OrderBy(c => c.ClienteId).ToList();
+        }
+        catch (Exception ex)
+        {
+            ListaClientes = new List<Clientes>();
+        }
+    }
+
+    private async Task Buscar()
+        => await CargarYOrdenar();
+
+    private async Task Ordenar(ChangeEventArgs e)
+    {
+        Filtro = e.Value.ToString() ?? "TecnicoId";
+        ValorFiltro = "";
+        await CargarYOrdenar();
+    }
+
+}
