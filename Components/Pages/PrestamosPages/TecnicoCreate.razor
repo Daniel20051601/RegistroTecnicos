@@ -36,15 +36,18 @@
 
             </div>
 
-            <div class="card-footer text-center mt-2">
-                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
-                    <i class="bi bi-plus-lg"></i>Nuevo
-                </button>
+            <div class="card-footer d-flex justify-content-center mt-2">
+                <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
+                        <i class="bi bi-plus-lg"></i> Limpiar
+                    </button>
 
-                <button type="submit" class="btn btn-outline-success"> Guardar</button>
-                <a href="/Tecnico/Index" class="btn btn-outline-danger">
-                    <span class="bi bi-arrow-left"></span> Volver
-                </a>
+                    <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
+
+                    <a href="/Tecnico/Index" class="btn btn-outline-danger">
+                        <span class="bi bi-arrow-left"></span> Volver
+                    </a>
+                </div>
             </div>
         </div>
     </div>
