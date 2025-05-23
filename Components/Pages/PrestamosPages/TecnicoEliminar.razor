@@ -1,9 +1,9 @@
-﻿@page "/Tecnico/Eliminar/{TecnicoId:int}" 
+﻿@page "/Tecnico/Eliminar/{TecnicoId:int}"
 @using RegistroTecnicos.Models
 @inject TecnicosService tecnicosService
-@inject Blazored.Toast.Services.IToastService toastService 
-@inject NavigationManager navigationManager 
-@rendermode InteractiveServer 
+@inject Blazored.Toast.Services.IToastService toastService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
 
 <PageTitle>Eliminar Técnico</PageTitle>
 
@@ -35,10 +35,12 @@ else
             </div>
 
             <div class="text-center card-footer">
-                <a href="/Tecnico/Index" class="btn btn-outline-primary">
-                    <span class="bi bi-box-arrow-left"></span> Volver
-                </a>
-                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="EliminarTecnicoConfirmado"> Eliminar</button>
+                <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                    <a href="/Tecnico/Index" class="btn btn-outline-primary">
+                        <span class="bi bi-box-arrow-left"></span> Volver
+                    </a>
+                    <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="EliminarTecnicoConfirmado"> Eliminar</button>
+                </div>
             </div>
 
         </div>
@@ -47,19 +49,19 @@ else
 
 @code {
     [Parameter]
-    public int TecnicoId { get; set; } 
+    public int TecnicoId { get; set; }
 
-    public Tecnicos? Tecnico { get; set; } 
+    public Tecnicos? Tecnico { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        
+
         Tecnico = await tecnicosService.Buscar(TecnicoId);
 
         if (Tecnico == null)
         {
             toastService.ShowError($"Técnico con ID {TecnicoId} no encontrado.");
-            navigationManager.NavigateTo("/Tecnico/Index"); 
+            navigationManager.NavigateTo("/Tecnico/Index");
         }
     }
 
@@ -72,7 +74,7 @@ else
             if (eliminadoExitosamente)
             {
                 toastService.ShowSuccess("Técnico eliminado correctamente.");
-                navigationManager.NavigateTo("/Tecnico/Index"); 
+                navigationManager.NavigateTo("/Tecnico/Index");
             }
             else
             {
