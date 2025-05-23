@@ -66,12 +66,14 @@ else
                     </div>
                 </div>
 
-                <div class="card-footer text-center">
-                    <a href="/Clientes/Index" class="btn btn-outline-primary">
-                        <span class="bi bi-box-arrow-left"></span> Volver
-                    </a>
-                    <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
-                    <a type="button" class="btn btn-danger bi bi-trash" href="/Cliente/Eliminar/@Cliente.ClienteId">Eliminar</a>
+                <div class="card-footer d-flex justify-content-center mt-2 ">
+                    <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                        <a href="/Clientes/Index" class="btn btn-outline-primary">
+                            <span class="bi bi-box-arrow-left"></span> Volver
+                        </a>
+                        <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
+                        <a type="button" class="btn btn-danger bi bi-trash" href="/Cliente/Eliminar/@Cliente.ClienteId">Eliminar</a>
+                    </div>
                 </div>
             </EditForm>
         </div>
