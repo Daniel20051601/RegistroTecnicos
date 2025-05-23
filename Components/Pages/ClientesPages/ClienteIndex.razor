@@ -28,14 +28,14 @@
                 <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="Filtro" @onchange="Ordenar">
                         <option value="ClienteId">Cliente Id</option>
-                        <option value="Nombre">Nombre</option>
+                        <option value="Nombres">Nombre</option>
                     </InputSelect>
                 </div>
                 <div class="col-4">
                     <div class="input-group">
                         <input class="form-control"
                                @bind="ValorFiltro"
-                               placeholder="Buscar por @(Filtro == "Nombre" ? "Nombre" : "ID")" />
+                               placeholder="Buscar por @(Filtro == "Nombres" ? "Nombre" : "ID")" />
                         <button type="button" class="btn btn-primary" @onclick="Buscar">
                             <i class="bi bi-search me-1"></i> Buscar
                         </button>
@@ -58,7 +58,7 @@
                             <th>Cliente Id</th>
                             <th>Nombres</th>
                             <th>Dirección</th>
-                            <th>Rnc</th>
+                            <th>RNC</th>
                             <th>Límite de Crédito</th>
                             <th>Técnico encargado</th>
                             <th>Fecha de Ingreso</th>
@@ -74,10 +74,10 @@
                                 <td>@cliente.Direccion</td>
                                 <td>@cliente.Rnc</td>
                                 <td>@cliente.LimiteCredito.ToString("F2")</td>
-                                <td>@cliente.Tecnico.Nombre</td>
+                                <td>@cliente.Tecnico?.Nombre</td>
                                 <td>@cliente.FechaIngreso.ToString("dd/MM/yyyy")</td>
                                 <td>
-                                    <a href="/Tecnico/Edit/@cliente.ClienteId"
+                                    <a href="/Clientes/Edit/@cliente.ClienteId"
                                        class="btn btn-outline-primary bi bi-pencil-square"></a>
                                 </td>
                             </tr>
@@ -94,7 +94,6 @@
     public string Filtro { get; set; } = "ClienteId";
     public string ValorFiltro { get; set; } = string.Empty;
     private bool isLoading = true;
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,7 +135,7 @@
 
             var lista = await clientesService.Listar(criterio);
 
-            ListaClientes = Filtro == "Nombre"
+            ListaClientes = Filtro == "Nombres"
                 ? lista.OrderBy(c => c.Nombres).ToList()
                 : lista.OrderBy(c => c.ClienteId).ToList();
         }
@@ -151,9 +150,8 @@
 
     private async Task Ordenar(ChangeEventArgs e)
     {
-        Filtro = e.Value.ToString() ?? "TecnicoId";
+        Filtro = e.Value?.ToString() ?? "ClienteId";
         ValorFiltro = "";
         await CargarYOrdenar();
     }
-
 }
