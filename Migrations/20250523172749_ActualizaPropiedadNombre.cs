@@ -5,7 +5,7 @@
 namespace RegistroTecnicos.Migrations
 {
     /// <inheritdoc />
-    public partial class ActualizaFechaIngreso : Migration
+    public partial class ActualizaPropiedadNombre : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -7,19 +7,24 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace RegistroTecnicos.Migrations
 {
     /// <inheritdoc />
-    public partial class AddClientesTable : Migration
+    public partial class ActualizaRequerimientos : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Nombre",
-                table: "Tecnicos",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
+            migrationBuilder.CreateTable(
+                name: "Tecnicos",
+                columns: table => new
+                {
+                    TecnicoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    SueldoPorHora = table.Column<double>(type: "double precision", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tecnicos", x => x.TecnicoId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Clientes",
@@ -69,14 +74,8 @@ namespace RegistroTecnicos.Migrations
             migrationBuilder.DropTable(
                 name: "Clientes");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Nombre",
-                table: "Tecnicos",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(100)",
-                oldMaxLength: 100);
+            migrationBuilder.DropTable(
+                name: "Tecnicos");
         }
     }
 }
