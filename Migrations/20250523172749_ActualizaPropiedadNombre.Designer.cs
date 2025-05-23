@@ -12,8 +12,8 @@ using RegistroTecnicos.DAL;
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250522060816_ActualizaFechaIngreso")]
-    partial class ActualizaFechaIngreso
+    [Migration("20250523172749_ActualizaPropiedadNombre")]
+    partial class ActualizaPropiedadNombre
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

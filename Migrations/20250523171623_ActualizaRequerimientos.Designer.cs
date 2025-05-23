@@ -12,8 +12,8 @@ using RegistroTecnicos.DAL;
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250521194140_AddClientesTable")]
-    partial class AddClientesTable
+    [Migration("20250523171623_ActualizaRequerimientos")]
+    partial class ActualizaRequerimientos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
