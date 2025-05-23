@@ -9,7 +9,6 @@
 <EditForm Model="Tecnico" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <label class="text-danger">@Message</label>
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center bg-primary text-white border-bottom-0">
@@ -54,7 +53,6 @@
 
 @code {
     public RegistroTecnicos.Models.Tecnicos Tecnico { get; set; } = new RegistroTecnicos.Models.Tecnicos();
-    private string Message { get; set; } = string.Empty;
     private int ProximoId { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -76,7 +74,6 @@
         if (await tecnicosService.ExisteNombre(Tecnico.Nombre))
         {
             toastService.ShowError("Ya existe un técnico con este nombre. Por favor, elige un nombre diferente.");
-            ///Message = "Ya existe un técnico con este nombre. Por favor, elige un nombre diferente.";
             return;
         }
 
@@ -95,7 +92,6 @@
 
     public async Task Nuevo()
     {
-        Message = string.Empty;
         Tecnico = new RegistroTecnicos.Models.Tecnicos();
         ProximoId = await ObtenerSiguienteId();
         StateHasChanged();

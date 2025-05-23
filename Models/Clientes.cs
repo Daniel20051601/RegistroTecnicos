@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RegistroTecnicos.Models;
 
-
 [Index(nameof(Nombres), IsUnique = true)] 
 [Index(nameof(Rnc), IsUnique = true)]
 
@@ -14,7 +13,7 @@ public class Clientes
     [Key]
     public int ClienteId { get; set; }
 
-    public DateTime FechaIngreso { get; private set; }
+    public DateTime FechaIngreso { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido")]
     [StringLength(100, ErrorMessage = "El nombre debe tener un maximo de 100 caracteres")]

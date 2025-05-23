@@ -27,6 +27,17 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
         return await query.AnyAsync(c => c.Nombres == nombre);
     }
 
+    public async Task<bool> ExisteRnc(string rnc, int? idExcluir = null)
+    {
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        var query = contexto.Clientes.AsQueryable();
+        if (idExcluir.HasValue)
+        {
+            query = query.Where(c => c.ClienteId != idExcluir.Value);
+        }
+        return await query.AnyAsync(c => c.Rnc == rnc);
+    }
+
     public async Task<bool> Insertar(Clientes cliente)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
@@ -49,11 +60,19 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
             {
                 return false;
             }
+            if (await ExisteRnc(cliente.Rnc))
+            {
+                return false;
+            }
             return await Insertar(cliente);
         }
-        else
+        else 
         {
             if (await ExisteNombre(cliente.Nombres, cliente.ClienteId))
+            {
+                return false;
+            }
+            if (await ExisteRnc(cliente.Rnc, cliente.ClienteId))
             {
                 return false;
             }
