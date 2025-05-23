@@ -17,6 +17,7 @@ public class Clientes
 
     [Required(ErrorMessage = "El nombre es requerido")]
     [StringLength(100, ErrorMessage = "El nombre debe tener un maximo de 100 caracteres")]
+    [RegularExpression(@"^[a-zA-Z\u00C0-\u017F\s]+$", ErrorMessage = "El nombre solo puede contener letras y espacios (incluyendo acentos).")]
     public string Nombres { get; set; } = null!;
 
     [Required(ErrorMessage = "Debe ingresar la dirección")]
@@ -24,7 +25,7 @@ public class Clientes
     public string Direccion { get; set; } = null!;
 
     [Required(ErrorMessage = "Debe ingresar el RNC")]
-    [StringLength(11, ErrorMessage = "El RNC debe tener un maximo de 11 caracteres")]
+    [StringLength(11, MinimumLength = 11, ErrorMessage = "El RNC debe tener exactamente 11 caracteres.")]
     public string Rnc { get; set; } = null!;
 
     [Required(ErrorMessage = "Debe un limite de crédito")]
