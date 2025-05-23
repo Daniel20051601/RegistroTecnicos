@@ -1,0 +1,130 @@
+﻿@page "/Clientes/Edit/{ClienteId:int}"
+@inject ClienteService clienteService
+@inject IToastService toastService
+@inject NavigationManager navigationManager
+@inject TecnicosService tecnicoService
+@rendermode InteractiveServer
+
+<PageTitle>Editar Cliente</PageTitle>
+
+@if (Cliente == null)
+{
+    <p><em>Cargando datos del cliente...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-primary text-white border-bottom-0">
+                <h5 class="card-title">Editar Cliente</h5>
+            </div>
+
+            <EditForm Model="Cliente" OnValidSubmit="GuardarCliente">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="clienteId" class="form-label"><strong>Cliente Id</strong></label>
+                        <InputNumber id="clienteId" @bind-Value="Cliente.ClienteId" class="form-control" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombres" class="form-label"><strong>Nombres</strong></label>
+                        <InputText id="nombres" @bind-Value="Cliente.Nombres" class="form-control" />
+                        <ValidationMessage For="@(() => Cliente.Nombres)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label"><strong>Dirección</strong></label>
+                        <InputText id="direccion" @bind-Value="Cliente.Direccion" class="form-control" />
+                        <ValidationMessage For="@(() => Cliente.Direccion)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Rnc" class="form-label"><strong>RNC</strong></label>
+                        <InputText id="Rnc" @bind-Value="Cliente.Rnc" class="form-control" />
+                        <ValidationMessage For="@(() => Cliente.Rnc)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="limiteCredito" class="form-label"><strong>Límite de Crédito</strong></label>
+                        <InputNumber id="limiteCredito" @bind-Value="Cliente.LimiteCredito" class="form-control" />
+                        <ValidationMessage For="@(() => Cliente.LimiteCredito)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Técnico Encargado</strong></label>
+                        <InputSelect class="form-select" @bind-Value="Cliente.TecnicoId">
+                            <option value="0">Seleccione un Técnico</option>
+                            @foreach (var tecnico in ListaTecnicos)
+                            {
+                                <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Cliente.TecnicoId)" />
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a href="/Clientes/Index" class="btn btn-outline-primary">
+                        <span class="bi bi-box-arrow-left"></span> Volver
+                    </a>
+                    <button type="submit" class="btn btn-outline-success bi bi-save"> Guardar</button>
+                    <a type="button" class="btn btn-danger bi bi-trash" href="/Cliente/Eliminar/@Cliente.ClienteId">Eliminar</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int ClienteId { get; set; }
+    public Clientes? Cliente { get; set; }
+    private List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cliente = await clienteService.Buscar(ClienteId);
+        ListaTecnicos = await tecnicoService.Listar(t => true);
+
+        if (Cliente == null)
+        {
+            toastService.ShowError($"Cliente con ID {ClienteId} no encontrado");
+            navigationManager.NavigateTo("/Clientes/Index");
+        }
+    }
+
+    private async Task GuardarCliente()
+    {
+        if (Cliente != null)
+        {
+            bool nombreduplicado = await clienteService.ExisteNombre(Cliente.Nombres, Cliente.ClienteId);
+            bool rncDuplicado = await clienteService.ExisteRnc(Cliente.Rnc, Cliente.ClienteId);
+
+            if (nombreduplicado)
+            {
+                toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
+                return;
+            }
+
+            if (rncDuplicado)
+            {
+                toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
+                return;
+            }
+
+            var guadadoExitosamente = await clienteService.Guardar(Cliente);
+            if (guadadoExitosamente)
+            {
+                toastService.ShowSuccess("Cliente guardado correctamente.");
+                navigationManager.NavigateTo("/Clientes/Index");
+            }
+            else
+            {
+                toastService.ShowError("No se pudo guardar el cliente");
+            }
+        }
+    }
+}

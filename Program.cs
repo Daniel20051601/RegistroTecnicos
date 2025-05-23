@@ -23,6 +23,7 @@ builder.Services.AddDbContextFactory<Contexto>(options =>
         }));
 
 builder.Services.AddScoped<TecnicosService>();
+builder.Services.AddScoped<ClienteService>();
 
 var app = builder.Build();
 

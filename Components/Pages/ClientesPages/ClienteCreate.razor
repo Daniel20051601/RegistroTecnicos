@@ -1,0 +1,139 @@
+﻿@page "/Cliente/Create"
+@inject ClienteService clienteService
+@inject IToastService toastService
+@inject NavigationManager navigationManager
+@inject TecnicosService tecnicoService
+@rendermode InteractiveServer
+
+
+<PageTitle>Crear Cliente</PageTitle>
+
+<EditForm Model="Cliente" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-primary text-white border-bottom-0">
+                <h5 class="card-title ">Crear Cliente</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label for="id" class="form-label">Cliente Id</label>
+                    <input class="form-control" value="@ProximoId" disabled />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombres</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Nombres" />
+                    <ValidationMessage For="@(() => Cliente.Nombres)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Dirección</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Direccion" />
+                    <ValidationMessage For="@(() => Cliente.Direccion)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Rnc</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Rnc" />
+                    <ValidationMessage For="@(() => Cliente.Rnc)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Límite de Crédito</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Cliente.LimiteCredito" />
+                    <ValidationMessage For="@(() => Cliente.LimiteCredito)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Técnico Encargado</strong></label>
+                    <InputSelect class="form-select" @bind-Value="Cliente.TecnicoId">
+                        <option value="0">Seleccione un Técnico</option>
+                        @foreach (var tecnico in ListaTecnicos)
+                        {
+                            <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Cliente.TecnicoId)" />
+                </div>
+
+            </div>
+
+            <div class="card-footer text-center mt-2">
+                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
+                    <i class="bi bi-plus-lg"></i>Nuevo
+                </button>
+
+                <button type="submit" class="btn btn-outline-success"> Guardar</button>
+
+                <a href="/Clientes/Index" class="btn btn-outline-danger">
+                    <span class="bi bi-arrow-left"></span> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Clientes Cliente { get; set; } = new Clientes();
+    private int ProximoId { get; set; }
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProximoId = await ObtenerSiguienteId();
+        ListaTecnicos = await tecnicoService.Listar(t => true);
+        Cliente.FechaIngreso = DateTime.UtcNow;
+    }
+
+    private async Task<int> ObtenerSiguienteId()
+    {
+        var lista = await clienteService.Listar(c => true);
+        if (lista == null || !lista.Any())
+            return 1;
+
+        return lista.Max(c => c.ClienteId) + 1;
+    }
+
+    public async Task Guardar()
+    {
+        if (await clienteService.ExisteNombre(Cliente.Nombres, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
+        {
+            toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
+            return;
+        }
+        if (await clienteService.ExisteRnc(Cliente.Rnc, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
+        {
+            toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
+            return;
+        }
+
+        if (Cliente.TecnicoId == 0)
+        {
+            toastService.ShowError("Debe seleccionar un técnico encargado.");
+            return;
+        }
+
+        var creado = await clienteService.Guardar(Cliente); 
+
+        if (creado)
+        {
+            toastService.ShowSuccess("Cliente guardado correctamente.");
+            await Nuevo();
+        }
+        else
+        {
+            toastService.ShowError("Error al guardar el cliente. Por favor, verifica los datos.");
+        }
+    }
+    public async Task Nuevo()
+    {
+        Cliente = new Clientes();
+        ProximoId = await ObtenerSiguienteId();
+        Cliente.FechaIngreso = DateTime.UtcNow;
+        StateHasChanged();
+    }
+}

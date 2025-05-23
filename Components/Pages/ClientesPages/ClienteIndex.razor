@@ -1,16 +1,15 @@
-﻿@page "/Tecnico/Index"
-@page "/"
+﻿@page "/Clientes/Index"
 @using System.Linq.Expressions
-@inject TecnicosService tecnicosService
+@inject ClienteService clientesService
 @rendermode InteractiveServer
 @attribute [StreamRendering(true)]
 
-<PageTitle>Registro de Tecnicos</PageTitle>
+<PageTitle>Registro de Clientes</PageTitle>
 
 <div class="container">
     <div class="card shadow-lg">
         <div class="card-header d-flex justify-content-center align-items-center p-3">
-            <h4 class="card-title mb-0">Consulta de Técnicos</h4>
+            <h4 class="card-title mb-0">Consulta de Clientes</h4>
         </div>
         <div class="card-body">
 
@@ -19,7 +18,7 @@
                     <label class="col-form-label"><strong>Filtrar por</strong></label>
                 </div>
                 <div class="col text-end">
-                    <a href="/Tecnico/Create" class="btn btn-success">
+                    <a href="/Cliente/Create" class="btn btn-success">
                         <span class="bi bi-plus-square"></span> Crear
                     </a>
                 </div>
@@ -28,15 +27,15 @@
             <div class="row align-items-center mb-3">
                 <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="Filtro" @onchange="Ordenar">
-                        <option value="TecnicoId">Técnico Id</option>
-                        <option value="Nombre">Nombre</option>
+                        <option value="ClienteId">Cliente Id</option>
+                        <option value="Nombres">Nombre</option>
                     </InputSelect>
                 </div>
                 <div class="col-4">
                     <div class="input-group">
                         <input class="form-control"
                                @bind="ValorFiltro"
-                               placeholder="Buscar por @(Filtro == "Nombre" ? "Nombre" : "ID")" />
+                               placeholder="Buscar por @(Filtro == "Nombres" ? "Nombre" : "ID")" />
                         <button type="button" class="btn btn-primary" @onclick="Buscar">
                             <i class="bi bi-search me-1"></i> Buscar
                         </button>
@@ -44,11 +43,11 @@
                 </div>
             </div>
 
-           @if (isLoading)
+            @if (isLoading)
             {
                 <div class="text-center my-4">
                     <div class="spinner-border" role="status"></div>
-                    <span class="ms-2">Cargando técnicos...</span>
+                    <span class="ms-2">Cargando clientes...</span>
                 </div>
             }
             else
@@ -56,21 +55,29 @@
                 <table class="table table-hover">
                     <thead class="table table-striped text-black">
                         <tr>
-                            <th>Técnico Id</th>
-                            <th>Nombre</th>
-                            <th>Sueldo</th>
+                            <th>Cliente Id</th>
+                            <th>Nombres</th>
+                            <th>Dirección</th>
+                            <th>RNC</th>
+                            <th>Límite de Crédito</th>
+                            <th>Técnico encargado</th>
+                            <th>Fecha de Ingreso</th>
                             <th>Editar</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var tecnico in ListaTecnicos)
+                        @foreach (var cliente in ListaClientes)
                         {
                             <tr>
-                                <td>@tecnico.TecnicoId</td>
-                                <td>@tecnico.Nombre</td>
-                                <td>@tecnico.SueldoPorHora.ToString("F2")</td>
+                                <td>@cliente.ClienteId</td>
+                                <td>@cliente.Nombres</td>
+                                <td>@cliente.Direccion</td>
+                                <td>@cliente.Rnc</td>
+                                <td>@cliente.LimiteCredito.ToString("F2")</td>
+                                <td>@cliente.Tecnico?.Nombre</td>
+                                <td>@cliente.FechaIngreso.ToString("dd/MM/yyyy")</td>
                                 <td>
-                                    <a href="/Tecnico/Edit/@tecnico.TecnicoId"
+                                    <a href="/Clientes/Edit/@cliente.ClienteId"
                                        class="btn btn-outline-primary bi bi-pencil-square"></a>
                                 </td>
                             </tr>
@@ -83,8 +90,8 @@
 </div>
 
 @code {
-    public List<Tecnicos> ListaTecnicos { get; set; } = new();
-    public string Filtro { get; set; } = "TecnicoId";
+    public List<Clientes> ListaClientes { get; set; } = new();
+    public string Filtro { get; set; } = "ClienteId";
     public string ValorFiltro { get; set; } = string.Empty;
     private bool isLoading = true;
 
@@ -100,42 +107,42 @@
     {
         try
         {
-            Expression<Func<Tecnicos, bool>> criterio;
-
+            Expression<Func<Clientes, bool>> criterio;
             if (!string.IsNullOrWhiteSpace(ValorFiltro))
             {
-                if (Filtro == "Nombre")
+                if (Filtro == "Nombres")
                 {
                     var nombreBuscado = ValorFiltro.ToLower();
-                    criterio = t => t.Nombre != null
-                                    && t.Nombre.ToLower().Contains(nombreBuscado);
+                    criterio = c => c.Nombres != null
+                    && c.Nombres.ToLower().Contains(nombreBuscado);
                 }
                 else
                 {
                     if (int.TryParse(ValorFiltro, out int idBuscado))
-                        criterio = t => t.TecnicoId == idBuscado;
+                    {
+                        criterio = c => c.ClienteId == idBuscado;
+                    }
                     else
-                        criterio = t => false;
+                    {
+                        criterio = c => true;
+                    }
                 }
             }
             else
             {
-                criterio = t => true;
+                criterio = c => true;
             }
 
-            var lista = await tecnicosService.Listar(criterio);
+            var lista = await clientesService.Listar(criterio);
 
-
-            ListaTecnicos = Filtro == "Nombre"
-                ? lista.OrderBy(t => t.Nombre).ToList()
-                : lista.OrderBy(t => t.TecnicoId).ToList();
-
-
-        }catch (Exception ex)
-        {
-            ListaTecnicos = new List<Tecnicos>();
+            ListaClientes = Filtro == "Nombres"
+                ? lista.OrderBy(c => c.Nombres).ToList()
+                : lista.OrderBy(c => c.ClienteId).ToList();
         }
-    
+        catch (Exception ex)
+        {
+            ListaClientes = new List<Clientes>();
+        }
     }
 
     private async Task Buscar()
@@ -143,8 +150,8 @@
 
     private async Task Ordenar(ChangeEventArgs e)
     {
-        Filtro = e.Value?.ToString() ?? "TecnicoId";
-        ValorFiltro = "";            
+        Filtro = e.Value?.ToString() ?? "ClienteId";
+        ValorFiltro = "";
         await CargarYOrdenar();
     }
 }
