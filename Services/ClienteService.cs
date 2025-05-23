@@ -19,7 +19,6 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         var query = contexto.Clientes.AsQueryable();
-
         if (idExcluir.HasValue)
         {
             query = query.Where(c => c.ClienteId != idExcluir.Value);
@@ -66,7 +65,7 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
             }
             return await Insertar(cliente);
         }
-        else 
+        else
         {
             if (await ExisteNombre(cliente.Nombres, cliente.ClienteId))
             {
@@ -84,6 +83,7 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Clientes
+            .Include(c => c.Tecnico)  
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.ClienteId == clienteId);
     }
@@ -94,13 +94,13 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
         try
         {
             var filaAfectada = await contexto.Clientes
-                .Where(c => c.TecnicoId == clienteId)
+                .Where(c => c.ClienteId == clienteId)  
                 .ExecuteDeleteAsync();
             return filaAfectada > 0;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al eliminar técnico en el servicio: {ex.Message}");
+            Console.WriteLine($"Error al eliminar cliente en el servicio: {ex.Message}");
             return false;
         }
     }
@@ -109,12 +109,9 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Clientes
-            .Include(c => c.Tecnico) 
+            .Include(c => c.Tecnico)
             .Where(criterio)
             .AsNoTracking()
             .ToListAsync();
     }
-
-
-
 }
