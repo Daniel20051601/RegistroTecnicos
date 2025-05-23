@@ -1,6 +1,6 @@
 ﻿@page "/Cliente/Eliminar/{ClienteId:int}"
 @inject ClienteService clientesService
-@inject IToastService toastService 
+@inject IToastService toastService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
@@ -38,10 +38,12 @@ else
             </div>
 
             <div class="text-center card-footer">
-                <a href="/Clientes/Index" class="btn btn-outline-primary">
-                    <span class="bi bi-box-arrow-left"></span> Volver
-                </a>
-                <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="EliminarClienteConfirmado"> Eliminar</button>
+                <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                    <a href="/Clientes/Index" class="btn btn-outline-primary">
+                        <span class="bi bi-box-arrow-left"></span> Volver
+                    </a>
+                    <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="EliminarClienteConfirmado"> Eliminar</button>
+                </div>
             </div>
 
         </div>
@@ -81,7 +83,7 @@ else
                 toastService.ShowError($"Error al eliminar el cliente con ID {Cliente.ClienteId}.");
             }
         }
-       
+
     }
 
 
