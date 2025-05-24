@@ -13,7 +13,7 @@ public class Tecnicos
     public string Nombre { get; set; } = null!;
 
     [Required(ErrorMessage = "Debe ingresar un sueldo por hora")]
-    [Range(1, 1000000, ErrorMessage = "El sueldo por hora debe estar entre 1 y 1000000 ")]
+    [Range(1.00, 1000000.00, ErrorMessage = "El sueldo por hora debe estar entre 1 y 1000000 ")]
     [RegularExpression(@"^\d{1,5}(\.\d{1,2})?$", ErrorMessage = "Máximo 2 decimales permitidos")]
     public double SueldoPorHora { get; set; }
 
