@@ -62,7 +62,6 @@
 
             </div>
 
-
             <div class="card-footer d-flex justify-content-center mt-2">
                 <div class="btn-group" role="group" aria-label="Grupo de acciones">
                     <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
@@ -87,9 +86,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ProximoId = await ObtenerSiguienteId();
         ListaTecnicos = await tecnicoService.Listar(t => true);
+        if (ListaTecnicos == null || !ListaTecnicos.Any())
+        {
+            toastService.ShowError("No hay técnicos disponibles. Por favor, crea un técnico antes de crear un cliente.");
+        }
+
+        ProximoId = await ObtenerSiguienteId();
+        
         Cliente.FechaIngreso = DateTime.UtcNow;
+
+        
     }
 
     private async Task<int> ObtenerSiguienteId()
