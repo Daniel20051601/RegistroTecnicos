@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Blazored.Toast.Services;
+using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
 using System.Linq.Expressions;
@@ -45,23 +46,26 @@ public class TecnicosService(IDbContextFactory<Contexto> DbFactory)
 
     public async Task<bool> Guardar(Tecnicos tecnico)
     {
+        Console.WriteLine($"Guardando tecnico con Id: {tecnico.TecnicoId} ");
         if (tecnico.TecnicoId == 0)
         {
             if (await ExisteNombre(tecnico.Nombre))
-            {
                 return false;
-            }
+
             return await Insertar(tecnico);
         }
         else
         {
-            if (await ExisteNombre(tecnico.Nombre, tecnico.TecnicoId))
-            {
+            if (!await Existe(tecnico.TecnicoId)) 
                 return false;
-            }
+
+            if (await ExisteNombre(tecnico.Nombre, tecnico.TecnicoId))
+                return false;
+
             return await Modificar(tecnico);
         }
     }
+
 
     public async Task<Tecnicos?> Buscar(int TecnicoId)
     {
