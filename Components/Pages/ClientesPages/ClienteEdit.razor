@@ -19,7 +19,7 @@ else
                 <h5 class="card-title">Editar Cliente</h5>
             </div>
 
-            <EditForm Model="Cliente" OnValidSubmit="GuardarCliente">
+            <EditForm Model="Cliente" OnValidSubmit="Guardar">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
@@ -68,7 +68,7 @@ else
 
                 <div class="card-footer d-flex justify-content-center mt-2 ">
                     <div class="btn-group" role="group" aria-label="Grupo de acciones">
-                        <a href="/Clientes/Index" class="btn btn-outline-primary">
+                        <a href="/Clientes/Index" class="btn btn-outline-secondary">
                             <span class="bi bi-box-arrow-left"></span> Volver
                         </a>
                         <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
@@ -98,27 +98,23 @@ else
         }
     }
 
-    private async Task GuardarCliente()
+    private async Task Guardar()
     {
         if (Cliente != null)
         {
-            bool nombreduplicado = await clienteService.ExisteNombre(Cliente.Nombres, Cliente.ClienteId);
-            bool rncDuplicado = await clienteService.ExisteRnc(Cliente.Rnc, Cliente.ClienteId);
-
-            if (nombreduplicado)
+            if (await clienteService.ExisteNombreORnc(c => c.Nombres == Cliente.Nombres, Cliente.ClienteId))
             {
                 toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
                 return;
             }
 
-            if (rncDuplicado)
+            if (await clienteService.ExisteNombreORnc(c => c.Rnc == Cliente.Rnc, Cliente.ClienteId))
             {
                 toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
                 return;
             }
 
-            var guadadoExitosamente = await clienteService.Guardar(Cliente);
-            if (guadadoExitosamente)
+            if (await clienteService.Guardar(Cliente))
             {
                 toastService.ShowSuccess("Cliente guardado correctamente.");
                 navigationManager.NavigateTo("/Clientes/Index");
