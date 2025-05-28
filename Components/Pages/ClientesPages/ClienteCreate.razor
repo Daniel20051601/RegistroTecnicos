@@ -5,7 +5,6 @@
 @inject TecnicosService tecnicoService
 @rendermode InteractiveServer
 
-
 <PageTitle>Crear Cliente</PageTitle>
 
 <EditForm Model="Cliente" OnValidSubmit="Guardar">
@@ -90,41 +89,47 @@
         {
             toastService.ShowError("No hay técnicos disponibles. Por favor, crea un técnico antes de crear un cliente.");
         }
-        
-        Cliente.FechaIngreso = DateTime.UtcNow;
 
-        
+        Cliente.FechaIngreso = DateTime.UtcNow;
     }
 
     public async Task Guardar()
     {
-        if (await clienteService.ExisteNombreORnc(c => c.Nombres == Cliente.Nombres, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
+        try
         {
-            toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
-            return;
-        }
-        if (await clienteService.ExisteNombreORnc(c => c.Rnc == Cliente.Rnc, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
-        {
-            toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
-            return;
-        }
+            if (await clienteService.ExisteNombreORnc(c => c.Nombres == Cliente.Nombres, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
+            {
+                toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
+                return;
+            }
+            if (await clienteService.ExisteNombreORnc(c => c.Rnc == Cliente.Rnc, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
+            {
+                toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
+                return;
+            }
 
-        if (Cliente.TecnicoId == 0)
+            if (Cliente.TecnicoId == 0)
+            {
+                toastService.ShowError("Debe seleccionar un técnico encargado.");
+                return;
+            }
+
+            var creado = await clienteService.Guardar(Cliente);
+
+            if (creado)
+            {
+                toastService.ShowSuccess("Cliente guardado correctamente.");
+                await Nuevo();
+            }
+            else
+            {
+                toastService.ShowError("Error al guardar el cliente. Por favor, verifica los datos.");
+            }
+            
+        }catch (Exception ex)
         {
-            toastService.ShowError("Debe seleccionar un técnico encargado.");
+            toastService.ShowError($"Error al guardar el cliente: {ex.Message}");
             return;
-        }
-
-        var creado = await clienteService.Guardar(Cliente);
-
-        if (creado)
-        {
-            toastService.ShowSuccess("Cliente guardado correctamente.");
-            await Nuevo();
-        }
-        else
-        {
-            toastService.ShowError("Error al guardar el cliente. Por favor, verifica los datos.");
         }
     }
     public async Task Nuevo()
