@@ -72,8 +72,7 @@ else
                             <span class="bi bi-box-arrow-left"></span> Volver
                         </a>
                         <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
-                        <!-- Botón para abrir modal -->
-                        <button type="button" class="btn btn-danger bi bi-trash" @onclick="() => MostrarModalEliminar = true">
+                        <button type="button" class="btn btn-danger" @onclick="() => MostrarModalEliminar = true">
                             <i class="bi bi-trash"></i> Eliminar
                         </button>
                     </div>
@@ -85,19 +84,34 @@ else
 
     @if (MostrarModalEliminar)
     {
-        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content shadow">
-                    <div class="modal-header bg-danger text-white">
+                    <div class="modal-header bg-primary text-white text-center">
                         <h5 class="modal-title">Eliminar Cliente</h5>
                         <button type="button" class="btn-close" @onclick="CerrarModalEliminar" aria-label="Cerrar"></button>
                     </div>
-                    <div class="modal-body">
-                        <p>¿Estás seguro de que deseas eliminar al cliente <strong>@Cliente.Nombres</strong>?</p>
+                    <div class="modal-body text-danger">
+                        <p>¿Estás seguro de que deseas eliminar al cliente?</p>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="CerrarModalEliminar">Cancelar</button>
-                        <button class="btn btn-danger" @onclick="EliminarCliente">Eliminar</button>
+                    <div class="card-header">
+                        <h5 class="card-title text-center"><strong>Datos del Cliente</strong></h5>
+                    </div>
+                    <div class="mb-3 ms-3">
+                        <p><strong>Cliente Id: </strong>@Cliente.ClienteId</p>
+                        <p><strong>Nombres: </strong>@Cliente.Nombres</p>
+                        <p><strong>Dirección: </strong>@Cliente.Direccion</p>
+                        <p><strong>RNC: </strong>@Cliente.Rnc</p>
+                        <p><strong>Límite de Crédito: </strong>@Cliente.LimiteCredito.ToString("N2")</p>
+                        <p><strong>Técnico Encargado: </strong>@Cliente.Tecnico?.Nombre</p>
+                        <p><strong>Fecha de Ingreso: </strong>@Cliente.FechaIngreso.ToString("dd/MM/yyyy")</p>
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-center">
+                        <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                            <button class="btn btn-outline-secondary" @onclick="CerrarModalEliminar"> <span class="bi bi-box-arrow-left"></span> Volver</button>
+                            <button class="btn btn-outline-danger bi bi-trash" @onclick="EliminarCliente"> Eliminar</button>
+                        </div>
                     </div>
                 </div>
             </div>
