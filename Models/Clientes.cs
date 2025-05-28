@@ -38,5 +38,5 @@ public class Clientes
 
     public Tecnicos Tecnico { get; set; } = null!;
 
-
+    public ICollection<Tickets> Tickets { get; set; } = new List<Tickets>();
 }
