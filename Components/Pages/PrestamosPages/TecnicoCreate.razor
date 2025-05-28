@@ -19,7 +19,7 @@
 
                 <div class="mb-3">
                     <label for="id" class="form-label">Técnico Id</label>
-                    <input class="form-control" value="@ProximoId" disabled />
+                    <input class="form-control" value="@Tecnico.TecnicoId" disabled />
                 </div>
                     
                 <div class="mb-3">
@@ -56,21 +56,6 @@
 
 @code {
     public RegistroTecnicos.Models.Tecnicos Tecnico { get; set; } = new RegistroTecnicos.Models.Tecnicos();
-    private int ProximoId { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        ProximoId = await ObtenerSiguienteId();
-    }
-
-    private async Task<int> ObtenerSiguienteId()
-    {
-        var lista = await tecnicosService.Listar(t => true);
-        if (lista == null || !lista.Any())
-            return 1;
-
-        return lista.Max(t => t.TecnicoId) + 1;
-    }
 
     public async Task Guardar()
     {
@@ -96,7 +81,6 @@
     public async Task Nuevo()
     {
         Tecnico = new RegistroTecnicos.Models.Tecnicos();
-        ProximoId = await ObtenerSiguienteId();
         StateHasChanged();
     }
 }

@@ -21,7 +21,7 @@
 
                 <div class="mb-3">
                     <label for="id" class="form-label">Cliente Id</label>
-                    <input class="form-control" value="@ProximoId" disabled />
+                    <input class="form-control" value="@Cliente.ClienteId" disabled />
                 </div>
 
                 <div class="mb-3">
@@ -81,7 +81,6 @@
 
 @code {
     public Clientes Cliente { get; set; } = new Clientes();
-    private int ProximoId { get; set; }
     public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
 
     protected override async Task OnInitializedAsync()
@@ -91,21 +90,10 @@
         {
             toastService.ShowError("No hay técnicos disponibles. Por favor, crea un técnico antes de crear un cliente.");
         }
-
-        ProximoId = await ObtenerSiguienteId();
         
         Cliente.FechaIngreso = DateTime.UtcNow;
 
         
-    }
-
-    private async Task<int> ObtenerSiguienteId()
-    {
-        var lista = await clienteService.Listar(c => true);
-        if (lista == null || !lista.Any())
-            return 1;
-
-        return lista.Max(c => c.ClienteId) + 1;
     }
 
     public async Task Guardar()
@@ -142,7 +130,6 @@
     public async Task Nuevo()
     {
         Cliente = new Clientes();
-        ProximoId = await ObtenerSiguienteId();
         Cliente.FechaIngreso = DateTime.UtcNow;
         StateHasChanged();
     }
