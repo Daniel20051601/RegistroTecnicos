@@ -18,6 +18,8 @@ public class Tecnicos
     [RegularExpression(@"^\d{1,5}(\.\d{1,2})?$", ErrorMessage = "Máximo 2 decimales permitidos")]
     public double SueldoPorHora { get; set; }
 
+    public ICollection<Tickets> Tickets { get; set; } = new List<Tickets>();
+
 
 }
 
