@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegistroTecnicos.DAL;
@@ -11,9 +12,11 @@ using RegistroTecnicos.DAL;
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20250528142917_AgregaTablaTickets2")]
+    partial class AgregaTablaTickets2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,47 +91,6 @@ namespace RegistroTecnicos.Migrations
                     b.ToTable("Tecnicos");
                 });
 
-            modelBuilder.Entity("RegistroTecnicos.Models.Tickets", b =>
-                {
-                    b.Property<int>("TicketId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TicketId"));
-
-                    b.Property<string>("Asunto")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ClienteId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Prioridad")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TecnicoId")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("TiempoInvertido")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("TicketId");
-
-                    b.HasIndex("ClienteId");
-
-                    b.HasIndex("TecnicoId");
-
-                    b.ToTable("Tickets");
-                });
-
             modelBuilder.Entity("RegistroTecnicos.Models.Clientes", b =>
                 {
                     b.HasOne("RegistroTecnicos.Models.Tecnicos", "Tecnico")
@@ -138,35 +100,6 @@ namespace RegistroTecnicos.Migrations
                         .IsRequired();
 
                     b.Navigation("Tecnico");
-                });
-
-            modelBuilder.Entity("RegistroTecnicos.Models.Tickets", b =>
-                {
-                    b.HasOne("RegistroTecnicos.Models.Clientes", "Cliente")
-                        .WithMany("Tickets")
-                        .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegistroTecnicos.Models.Tecnicos", "Tecnico")
-                        .WithMany("Tickets")
-                        .HasForeignKey("TecnicoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cliente");
-
-                    b.Navigation("Tecnico");
-                });
-
-            modelBuilder.Entity("RegistroTecnicos.Models.Clientes", b =>
-                {
-                    b.Navigation("Tickets");
-                });
-
-            modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
-                {
-                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }
