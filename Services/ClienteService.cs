@@ -7,34 +7,17 @@ namespace RegistroTecnicos.Services;
 
 public class ClienteService(IDbContextFactory<Contexto> DbFactory)
 {
-    private async Task<bool> Existe(int clienteId)
+    public async Task<bool> ExisteNombreORnc(Expression<Func<Clientes, bool>> criterio, int? idExcluir = null)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        return await contexto
-            .Clientes
-            .AnyAsync(c => c.ClienteId == clienteId);
-    }
 
-    public async Task<bool> ExisteNombre(string nombre, int? idExcluir = null)
-    {
-        await using var contexto = await DbFactory.CreateDbContextAsync();
         var query = contexto.Clientes.AsQueryable();
+
         if (idExcluir.HasValue)
         {
-            query = query.Where(c => c.ClienteId != idExcluir.Value);
+            query = query.Where(c => c.ClienteId !=idExcluir.Value);
         }
-        return await query.AnyAsync(c => c.Nombres == nombre);
-    }
-
-    public async Task<bool> ExisteRnc(string rnc, int? idExcluir = null)
-    {
-        await using var contexto = await DbFactory.CreateDbContextAsync();
-        var query = contexto.Clientes.AsQueryable();
-        if (idExcluir.HasValue)
-        {
-            query = query.Where(c => c.ClienteId != idExcluir.Value);
-        }
-        return await query.AnyAsync(c => c.Rnc == rnc);
+        return await query.AnyAsync(criterio);
     }
 
     public async Task<bool> Insertar(Clientes cliente)
@@ -55,11 +38,11 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
     {
         if (cliente.ClienteId == 0)
         {
-            if (await ExisteNombre(cliente.Nombres))
+            if (await ExisteNombreORnc(c => c.Nombres == cliente.Nombres))
             {
                 return false;
             }
-            if (await ExisteRnc(cliente.Rnc))
+            if (await ExisteNombreORnc(c => c.Rnc == cliente.Rnc))
             {
                 return false;
             }
@@ -67,11 +50,11 @@ public class ClienteService(IDbContextFactory<Contexto> DbFactory)
         }
         else
         {
-            if (await ExisteNombre(cliente.Nombres, cliente.ClienteId))
+            if (await ExisteNombreORnc(c => c.Nombres == cliente.Nombres, cliente.ClienteId))
             {
                 return false;
             }
-            if (await ExisteRnc(cliente.Rnc, cliente.ClienteId))
+            if (await ExisteNombreORnc(c => c.Rnc == cliente.Rnc, cliente.ClienteId))
             {
                 return false;
             }
