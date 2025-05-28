@@ -1,6 +1,7 @@
 ﻿@page "/Clientes/Index"
 @using System.Linq.Expressions
 @inject ClienteService clientesService
+@inject IToastService toastService
 @rendermode InteractiveServer
 @attribute [StreamRendering(true)]
 
@@ -46,7 +47,7 @@
             @if (isLoading)
             {
                 <div class="text-center my-4">
-                    <div class="spinner-border" role="status"></div>
+                    <div class="spinner-border text-primary" role="status"></div>
                     <span class="ms-2">Cargando clientes...</span>
                 </div>
             }
@@ -142,6 +143,7 @@
         catch (Exception ex)
         {
             ListaClientes = new List<Clientes>();
+            toastService.ShowError($"Error al cargar los clientes: {ex.Message}");
         }
     }
 

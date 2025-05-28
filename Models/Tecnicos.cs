@@ -9,7 +9,8 @@ public class Tecnicos
 
     [Required(ErrorMessage = "El nombre es requerido")]
     [StringLength(100, ErrorMessage = "El nombre debe tener un maximo de 100 caracteres")]
-    [RegularExpression(@"^[a-zA-Z\u00C0-\u017F\s]+$", ErrorMessage = "El nombre solo puede contener letras y espacios (incluyendo acentos).")]
+    [RegularExpression(@"^(?=.*[a-zA-Z\u00C0-\u017F])[a-zA-Z\u00C0-\u017F\s.'-]+$",
+                       ErrorMessage = "El nombre debe contener al menos una letra y solo puede incluir letras, espacios, apóstrofes, puntos y guiones (incluyendo acentos).")]
     public string Nombre { get; set; } = null!;
 
     [Required(ErrorMessage = "Debe ingresar un sueldo por hora")]

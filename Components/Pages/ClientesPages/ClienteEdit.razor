@@ -19,7 +19,7 @@ else
                 <h5 class="card-title">Editar Cliente</h5>
             </div>
 
-            <EditForm Model="Cliente" OnValidSubmit="GuardarCliente">
+            <EditForm Model="Cliente" OnValidSubmit="Guardar">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
@@ -68,16 +68,41 @@ else
 
                 <div class="card-footer d-flex justify-content-center mt-2 ">
                     <div class="btn-group" role="group" aria-label="Grupo de acciones">
-                        <a href="/Clientes/Index" class="btn btn-outline-primary">
+                        <a href="/Clientes/Index" class="btn btn-outline-secondary">
                             <span class="bi bi-box-arrow-left"></span> Volver
                         </a>
                         <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
-                        <a type="button" class="btn btn-danger bi bi-trash" href="/Cliente/Eliminar/@Cliente.ClienteId">Eliminar</a>
+                        <!-- Botón para abrir modal -->
+                        <button type="button" class="btn btn-danger bi bi-trash" @onclick="() => MostrarModalEliminar = true">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
                     </div>
                 </div>
+
             </EditForm>
         </div>
     </div>
+
+    @if (MostrarModalEliminar)
+    {
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Eliminar Cliente</h5>
+                        <button type="button" class="btn-close" @onclick="CerrarModalEliminar" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas eliminar al cliente <strong>@Cliente.Nombres</strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="CerrarModalEliminar">Cancelar</button>
+                        <button class="btn btn-danger" @onclick="EliminarCliente">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code {
@@ -85,6 +110,8 @@ else
     public int ClienteId { get; set; }
     public Clientes? Cliente { get; set; }
     private List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
+    private bool MostrarModalEliminar = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,35 +125,63 @@ else
         }
     }
 
-    private async Task GuardarCliente()
+    private async Task Guardar()
+    {
+        try
+        {
+            if (Cliente != null)
+            {
+                if (await clienteService.ExisteNombreORnc(c => c.Nombres == Cliente.Nombres, Cliente.ClienteId))
+                {
+                    toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
+                    return;
+                }
+
+                if (await clienteService.ExisteNombreORnc(c => c.Rnc == Cliente.Rnc, Cliente.ClienteId))
+                {
+                    toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
+                    return;
+                }
+
+                if (await clienteService.Guardar(Cliente))
+                {
+                    toastService.ShowSuccess("Cliente guardado correctamente.");
+                    navigationManager.NavigateTo("/Clientes/Index");
+                }
+                else
+                {
+                    toastService.ShowError("No se pudo guardar el cliente");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al guardar el cliente: {ex.Message}");
+            return;
+        }
+    }
+
+    private void CerrarModalEliminar()
+    {
+        MostrarModalEliminar = false;
+    }
+
+    private async Task EliminarCliente()
     {
         if (Cliente != null)
         {
-            bool nombreduplicado = await clienteService.ExisteNombre(Cliente.Nombres, Cliente.ClienteId);
-            bool rncDuplicado = await clienteService.ExisteRnc(Cliente.Rnc, Cliente.ClienteId);
-
-            if (nombreduplicado)
+            var eliminado = await clienteService.Eliminar(Cliente.ClienteId);
+            if (eliminado)
             {
-                toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
-                return;
-            }
-
-            if (rncDuplicado)
-            {
-                toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
-                return;
-            }
-
-            var guadadoExitosamente = await clienteService.Guardar(Cliente);
-            if (guadadoExitosamente)
-            {
-                toastService.ShowSuccess("Cliente guardado correctamente.");
+                toastService.ShowSuccess("Cliente eliminado correctamente.");
                 navigationManager.NavigateTo("/Clientes/Index");
             }
             else
             {
-                toastService.ShowError("No se pudo guardar el cliente");
+                toastService.ShowError("No se pudo eliminar el cliente.");
             }
         }
+
+        MostrarModalEliminar = false;
     }
 }
