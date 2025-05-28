@@ -70,7 +70,7 @@
 
                     <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
 
-                    <a href="/Clientes/Index" class="btn btn-outline-danger">
+                    <a href="/Clientes/Index" class="btn btn-outline-secondary">
                         <span class="bi bi-arrow-left"></span> Volver
                     </a>
                 </div>
@@ -110,12 +110,12 @@
 
     public async Task Guardar()
     {
-        if (await clienteService.ExisteNombre(Cliente.Nombres, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
+        if (await clienteService.ExisteNombreORnc(c => c.Nombres == Cliente.Nombres, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
         {
             toastService.ShowError("Ya existe un cliente con este nombre. Por favor, elige un nombre diferente.");
             return;
         }
-        if (await clienteService.ExisteRnc(Cliente.Rnc, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
+        if (await clienteService.ExisteNombreORnc(c => c.Rnc == Cliente.Rnc, Cliente.ClienteId != 0 ? Cliente.ClienteId : (int?)null))
         {
             toastService.ShowError("Ya existe un cliente con este RNC. Por favor, elige un RNC diferente.");
             return;
