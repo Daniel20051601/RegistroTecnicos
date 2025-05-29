@@ -24,6 +24,7 @@ builder.Services.AddDbContextFactory<Contexto>(options =>
 
 builder.Services.AddScoped<TecnicosService>();
 builder.Services.AddScoped<ClienteService>();
+builder.Services.AddScoped<TicketService>();
 
 var app = builder.Build();
 
