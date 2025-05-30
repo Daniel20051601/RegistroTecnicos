@@ -66,6 +66,7 @@ public class TicketService(IDbContextFactory<Contexto> DbFactory)
             .AsNoTracking()
             .ToListAsync();
     }
+
     public async Task<Paginacion<Tickets>> ListarTicketsFiltrados(
     string filtroTipo,
     string? valorFiltro,
