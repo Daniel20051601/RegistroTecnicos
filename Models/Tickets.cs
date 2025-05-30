@@ -16,12 +16,15 @@ public class Tickets
     public int ClienteId { get; set; }
 
     [Required(ErrorMessage = "Debe ingresar el asunto del Ticket")]
+    [StringLength(150, ErrorMessage = "La dirección debe tener un maximo de 200 caracteres")]
     public string Asunto { get; set; } = null!;
 
     [Required(ErrorMessage = "Ingrese una descripción para el Ticket")]
+    [StringLength(500, ErrorMessage = "La dirección debe tener un maximo de 200 caracteres")]
     public string Descripcion { get; set; } = null!;
 
     [Required(ErrorMessage ="Ingrese el tiempo invertido")]
+    [Range(1.00, 2000.00, ErrorMessage = "El tiempo invertido debe ser un valor positivo entre {1} y {2}.")]
     public double TiempoInvertido { get; set; }
 
     [Required(ErrorMessage = "Selecione un Tecnico Encargado")]
