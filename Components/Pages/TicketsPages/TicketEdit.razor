@@ -1,0 +1,220 @@
+﻿@page "/Ticket/Edit/{TicketId:int}"
+@inject TecnicosService tecnicoService
+@inject ClienteService clienteService
+@inject TicketService ticketService
+@inject IToastService toastService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Editar Ticket</PageTitle>
+
+@if(ticket == null)
+{
+    <p><em>Cargando datos del cliente...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-primary text-white border-bottom-0">
+                <h5 class="card-title">Editar Ticket</h5>
+            </div>
+
+            <EditForm Model="ticket" OnValidSubmit="Guardar">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label for="ticketId" class="form-label"><strong>Ticket Id</strong></label>
+                        <InputNumber id="ticketId" @bind-Value="ticket.TicketId" class="form-control" readonly/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="asunto" class="form-label"><strong>Asunto</strong></label>
+                        <InputText @bind-Value="ticket.Asunto" class="form-control"/>
+                        <ValidationMessage For="@(() => ticket.Asunto)" />
+                    </div>
+
+                    <div>
+                        <label class="form-label"><strong>Prioridad</strong></label>
+                        <InputSelect class="form-select" @bind-Value="ticket.Prioridad">
+                            <option value="0">Seleccione la prioridad</option>
+                            <option value="1">Baja</option>
+                            <option value="2">Media</option>
+                            <option value="3">Alta</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => ticket.Prioridad)" />
+                    </div>
+
+                    <div>
+                        <label class="form-label"><strong>Cliente</strong></label>
+                        <InputSelect class="form-select" @bind-Value="ticket.ClienteId">
+                            <option value="0">Seleccione un Cliente</option>
+                            @foreach(var cliente in ListaClientes)
+                            {
+                                <option value="@cliente.ClienteId">@cliente.Nombres</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => ticket.ClienteId)"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>T&eacute;cnico encargado</strong></label>
+                        <InputSelect class="form-select" @bind-Value="ticket.TecnicoId">
+                            <option value="0">Selecione un tecnico</option>
+                            @foreach(var tecnico in ListaTecnicos)
+                            {
+                                <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
+                            }
+                            <ValidationMessage For="@(() => ticket.TecnicoId)" />
+                        </InputSelect>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Tiempo invertido</strong></label>
+                        <InputNumber class="form-control" @bind-Value="ticket.TiempoInvertido" />
+                        <ValidationMessage For="@(() => ticket.TiempoInvertido)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Descripci&oacute;n</strong></label>
+                        <InputTextArea class="form-control" @bind-Value="ticket.Descripcion" rows="3" />
+                    </div>
+
+                </div>
+                <div class="card-footer d-flex justify-content-center mt-2 ">
+                    <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                        <a href="/Ticket/Index" class="btn btn-outline-secondary">
+                            <span class="bi bi-box-arrow-left"></span> Volver
+                        </a>
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-check-circle-fill"></i> Guardar
+                        </button>
+                        <button type="button" class="btn btn-danger" @onclick="() => MostrarModalEliminar = true">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+
+            </EditForm>
+        </div>
+    </div>
+    @if(MostrarModalEliminar)
+    {
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content shadow"> 
+                    <div class="modal-header bg-primary text-white text-center">
+                        <h5 class="modal-tile">Eliminar Ticket</h5>
+                        <button type="button" class="btn-close" @onclick="CerrarModalEliminar" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body text-danger">
+                        <p>¿Est&aacute;s seguro de que deseas eliminar este Ticket?</p>
+                    </div>
+                    <div class="card-header">
+                        <h5 class="card-title text-center"><strong>Datos del Ticket</strong></h5>
+                    </div>
+                    <div class="mb-3 ms-3">
+                        <p><strong>Ticket Id: </strong>@ticket.TicketId</p>
+                        <p><strong>Asunto: </strong>@ticket.Asunto</p>
+                        <p><strong>Prioridad: </strong>@ticket.Prioridad</p>
+                        <p><strong>Cliente: </strong>@ticket.Cliente?.Nombres</p>
+                        <p><strong>T&eacute;cnico: </strong>@ticket.Tecnico?.Nombre</p>
+                        <p><strong>Tiempo invertido: </strong>@ticket.TiempoInvertido</p>
+                        <p><strong>Descripci&oacute;n: </strong>@ticket.Descripcion</p>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-secondary" @onclick="CerrarModalEliminar"> <span class="bi bi-box-arrow-left"></span> Volver</button>
+                            <button class="btn btn-outline-danger bi bi-trash" @onclick="EliminarCliente"> Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public int TicketId { get; set; }
+    public Tickets? ticket { get; set; }
+    public List<Tickets> ListaTickets { get; set; } = new List<Tickets>();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
+    private bool MostrarModalEliminar = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ticket = await ticketService.Buscar(TicketId);
+        ListaClientes = await clienteService.Listar(c => true);
+        ListaTecnicos = await tecnicoService.Listar(t => true);
+        if (ticket == null)
+        {
+            toastService.ShowError($"Ticket con ID {TicketId} no encontrado");
+            navigationManager.NavigateTo("/Ticket/Index");
+        }
+    }
+
+    private async Task Guardar()
+    {
+        try
+        {
+            if (ticket != null)
+            {
+                if (ticket.ClienteId == 0)
+                {
+                    toastService.ShowError("Por favor, seleccione un cliente.");
+                    return;
+                }
+                if (ticket.TecnicoId == 0)
+                {
+                    toastService.ShowError("Por favor, seleccione un técnico.");
+                    return;
+                }
+                if (await ticketService.Guardar(ticket))
+                {
+                    toastService.ShowSuccess("Ticket actualizado exitosamente.");
+                    navigationManager.NavigateTo("/Ticket/Index");
+                }
+                else
+                {
+                    toastService.ShowError("Error al actualizar el ticket. Por favor, inténtalo de nuevo.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error al guardar el Ticket{ex.Message}");
+            return;
+        }
+    }
+
+    private void CerrarModalEliminar()
+    {
+        MostrarModalEliminar = false;
+    }
+
+    private async Task EliminarCliente()
+    {
+        if(ticket != null)
+        {
+            var eliminado = await ticketService.Eliminar(ticket.TicketId);
+            if (eliminado)
+            {
+                toastService.ShowSuccess("Ticket eliminado correctamente.");
+                navigationManager.NavigateTo("/Ticket/Index");
+            }
+            else
+            {
+                toastService.ShowError("No se pudo eliminar el ticket. Verifique los datos o intente nuevamente.");
+
+            }
+            MostrarModalEliminar = false;
+        }
+    }
+
+}

@@ -1,0 +1,156 @@
+﻿@page "/Ticket/Create"
+@inject TicketService ticketService
+@inject ClienteService clienteService
+@inject TecnicosService tecnicoService
+@inject IToastService toastService
+@rendermode InteractiveServer
+
+<PageTitle>Crear Ticket</PageTitle>
+
+<EditForm Model="ticket" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-primary text-white border-bottom-0">
+                <h5 class="card-title">Crear Ticket</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="id" class="form-label"><strong>Ticket Id</strong></label>
+                    <input class="form-control" value="@ticket.TicketId" disabled/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Asunto</strong></label>
+                    <InputText class="form-control" @bind-Value="ticket.Asunto" />
+                    <ValidationMessage For="@(() => ticket.Asunto)"/>
+                </div>
+
+                <div class="mb-3"> 
+                    <label class="form-label"><strong>Prioridad</strong></label>
+                    <InputSelect class="form-select" @bind-Value="ticket.Prioridad">
+                        <option value="0">Seleccione la prioridad</option>
+                        <option value="1">Baja</option>
+                        <option value="2">Media</option>
+                        <option value="3">Alta</option>
+                    </InputSelect>
+                    <ValidationMessage For="(() => ticket.Prioridad)"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Cliente</strong></label>
+                    <InputSelect class="form-select" @bind-Value="ticket.ClienteId">
+                        <option value="0">Selecione un Cliente</option>
+                        @foreach(var cliente in ListaClientes)
+                        {
+                            <option value="@cliente.ClienteId">@cliente.Nombres</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => ticket.ClienteId)"/>    
+                </div>
+                <div class="mb-0">
+                    <label class="form-label"><strong>T&eacute;cnico Encargado</strong></label>
+                    <InputSelect class="form-select" @bind-Value="ticket.TecnicoId">
+                        <option value="0">Selecione un T&eacute;cnico</option>
+                        @foreach (var tecnico in ListaTecnicos)
+                        {
+                            <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => ticket.TecnicoId)" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Tiempo invertido</strong></label>
+                    <InputNumber class="form-control" @bind-Value="ticket.TiempoInvertido" />
+                    <ValidationMessage For="@(() => ticket.TiempoInvertido)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Descripci&oacute;n</strong></label>
+                    <InputTextArea class="form-control" @bind-Value="ticket.Descripcion" rows="3" />
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-center mt-2">
+                <div class="btn-group" role="group" aria-label="Grupo de acciones">
+
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
+                        <i class="bi bi-plus-lg"></i> Limpiar
+                    </button>
+
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="bi bi-check-circle-fill"> Guardar</i>
+                    </button>
+
+                    <a href="/Ticket/Index" class="btn btn-outline-secondary">
+                        <span class="bi bi-box-arrow-left"></span> Volver
+                    </a>
+
+                </div>
+            </div> 
+            
+
+
+
+        </div>
+    </div>
+
+
+</EditForm>
+
+@code {
+    public Tickets ticket { get; set; } = new Tickets();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaClientes = await clienteService.Listar(t => true);
+        ListaTecnicos = await tecnicoService.Listar(t => true);
+        ticket.Fecha = DateTime.UtcNow;
+    }
+
+    public async Task Guardar()
+    {
+        try
+        {
+            if (ticket.ClienteId == 0)
+            {
+                toastService.ShowError("Por favor, seleccione un cliente.");
+                return;
+            }
+            if (ticket.TecnicoId == 0)
+            {
+                toastService.ShowError("Por favor, seleccione un técnico.");
+                return;
+            }
+
+            if (await ticketService.Guardar(ticket))
+            {
+                toastService.ShowSuccess("Ticket creado exitosamente.");
+                ticket = new Tickets();
+            }
+            else
+            {
+                toastService.ShowError("Error al crear el ticket. Por favor, inténtalo de nuevo.");
+
+            }
+        }catch (Exception ex)
+        {
+            toastService.ShowError($"Error al guardar el ticket: {ex.Message}");
+            toastService.ShowError($"No se puedo guardar ticket con Id {ticket.TicketId}");
+            return;
+        }
+    
+    }
+
+    public async Task Nuevo()
+    {
+        ticket = new Tickets();
+        ticket.Fecha = DateTime.UtcNow;
+        StateHasChanged();
+    }
+}
+
