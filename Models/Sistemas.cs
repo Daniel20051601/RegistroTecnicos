@@ -16,5 +16,7 @@ public class Sistemas
     [Required(ErrorMessage = "Debe agregar la complejidad del Sistema")]
     public string Complejidad { get; set; } = null!;
 
+    public DateTime Fecha { get; set; } = DateTime.Now;
+
 
 }
