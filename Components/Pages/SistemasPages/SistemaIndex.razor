@@ -38,8 +38,8 @@
                 <div class="col-3">
                     <InputSelect class="form-select" @bind-Value="Filtro" @onchange="Ordenar">
                         <option value="SistemaId">Sistema Id</option>
-                        <option value="Nombre">Nombre</option>
                         <option value="Descripcion">Descripci&oacute;n</option>
+                        <option value="Complejidad" >Complejidad</option>
                     </InputSelect>
                 </div>
                 <div class="col-4">
@@ -89,7 +89,7 @@
                                     <td>@sistema.Complejidad</td>
                                     <td>@sistema.Fecha.ToString("dd/MM/yyyy")</td>
                                     <td>
-                                        <a href="/Sistemas/Edit/@sistema.SistemaId" class="btn btn-outline-primary bi bi-pencil-squre"></a>
+                                        <a href="/Sistemas/Edit/@sistema.SistemaId" class="btn btn-outline-primary bi bi-pencil-square"></a>
                                     </td>
                                 </tr>
                             }
@@ -124,7 +124,7 @@
                 </li>
             </ul>
             <div class="text-center text-muted">
-                Página @(paginacion.PageIndex) de @(paginacion.TotalPages) | Total: @(paginacion.TotalCount) tickets
+                Página @(paginacion.PageIndex) de @(paginacion.TotalPages) | Total: @(paginacion.TotalCount) Sistemas
             </div>
         </nav>
     }
