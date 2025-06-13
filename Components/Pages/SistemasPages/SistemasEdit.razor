@@ -1,0 +1,152 @@
+﻿@page "/Sistemas/Edit/{SistemaId:int}"
+@rendermode InteractiveServer
+@inject IToastService toastService
+@inject SistemasService sistemasService
+@inject NavigationManager navigationManager
+
+
+<PageTitle>Editar Sistema</PageTitle>
+
+@if (Sistema == null)
+{
+    <p><em>Cargando datos del sistema...</em></p>
+}
+else
+{
+    <EditForm Model="Sistema" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="container">
+            <div class="card shadow-lg">
+                <div class="card-header text-center bg-primary text-white border-bottom-0">
+                    <h5 class="card-title">Editar Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Sistema Id</label>
+                        <InputNumber class="form-control" @bind-Value="@Sistema.SistemaId" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripci&oacute;n</label>
+                        <InputTextArea class="form-control" @bind-Value="@Sistema.DescripcionSistema" />
+                        <ValidationMessage For="@(() => Sistema.DescripcionSistema)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="complejidad" class="form-label">Complejidad</label>
+                        <InputSelect class="form-select" @bind-Value="@Sistema.Complejidad">
+                            <option value="0">Seleccione una complejidad</option>
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Sistema.Complejidad)" />
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-center mt-2">
+                    <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                        <a href="/Sistemas/Index" class="btn btn-outline-secondary">
+                            <span class="bi bi-arrow-left"></span> Volver
+                        </a>
+
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-check-circle-fill"></i> Guardar
+                        </button>
+
+                        <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="() => MostrarModal = true">
+                            Eliminar
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </EditForm>
+
+    @if (MostrarModal)
+    {
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Eliminar Sistema</h5>
+                        <button type="button" class="btn-close" @onclick="() => MostrarModal = false" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body text-danger">
+                        <p>¿Est&aacute;s seguro de que deseas eliminar este Ticket?</p>
+                    </div>
+                    <div class="card-header">
+                        <h5 class="card-title text-center"><strong>Datos del Sistema</strong></h5>
+                    </div>
+                    <div class="mb-3 ms-3">
+                        <p><strong>Sistema Id: </strong>@Sistema.SistemaId</p>
+                        <p><strong>Descripci&oacute;n: </strong>@Sistema.DescripcionSistema</p>
+                        <p><strong>Complejidad: </strong>@Sistema.Complejidad</p>
+                        <p><strong>Fecha de Creaci&oacute;n: </strong>@Sistema.Fecha</p>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="button" class="btn btn-secondary" @onclick="CerrarModalEliminar">Cancelar</button>
+                        <button type="button" class="btn btn-danger" @onclick="EliminarSistema">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+
+
+
+@code {
+    [Parameter]
+    public int SistemaId { get; set; }
+    private Sistemas? Sistema { get; set; } = new Sistemas();
+    private bool MostrarModal = false;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        Sistema = await sistemasService.Buscar(SistemaId);
+        if (Sistema == null)
+        {
+            toastService.ShowError($"Ticket con ID {SistemaId} no encontrado");
+            navigationManager.NavigateTo("/Sistemas/Index");
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (await sistemasService.Guardar(Sistema))
+        {
+            toastService.ShowSuccess("Sistema actualizado exitosamente.");
+            navigationManager.NavigateTo("/Sistemas/Index");
+        }
+        else
+        {
+            toastService.ShowError("Error al actualizar el Sistema. Por favor, inténtalo de nuevo.");
+        }
+    }
+    private void CerrarModalEliminar()
+    {
+        MostrarModal = false;
+    }
+
+    private async Task EliminarSistema()
+    {
+        if (Sistema != null)
+        {
+            await sistemasService.Eliminar(Sistema.SistemaId);
+            toastService.ShowSuccess($"Sistema con ID {Sistema.SistemaId} eliminado correctamente");
+            navigationManager.NavigateTo("/Sistemas/Index");
+        }
+        else
+        {
+            toastService.ShowError("No se pudo eliminar el sistema, no se encontró el ID.");
+        }
+    }
+
+}
