@@ -64,7 +64,7 @@ public class SistemasService(IDbContextFactory<Contexto> DbFactory)
             .ToListAsync();
     }
 
-    public async Task<Paginacion<Sistemas>> ListarTicketsFiltrados(
+    public async Task<Paginacion<Sistemas>> ListarSistemasFiltrados(
         string filtroTipo,
         string? valorFiltro,
         DateTime? fechaDesde,
