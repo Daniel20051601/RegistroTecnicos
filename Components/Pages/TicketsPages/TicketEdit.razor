@@ -128,7 +128,7 @@ else
                     <div class="modal-footer d-flex justify-content-center">
                         <div class="btn-group" role="group">
                             <button class="btn btn-outline-secondary" @onclick="CerrarModalEliminar"> <span class="bi bi-box-arrow-left"></span> Volver</button>
-                            <button class="btn btn-outline-danger bi bi-trash" @onclick="EliminarCliente"> Eliminar</button>
+                            <button class="btn btn-outline-danger bi bi-trash" @onclick="EliminarTicket"> Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@ else
         MostrarModalEliminar = false;
     }
 
-    private async Task EliminarCliente()
+    private async Task EliminarTicket()
     {
         if(ticket != null)
         {

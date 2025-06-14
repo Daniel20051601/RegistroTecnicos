@@ -1,0 +1,86 @@
+﻿@page "/Sistemas/Create"
+@rendermode InteractiveServer
+@inject SistemasService sistemasService
+@inject IToastService toastService
+
+<PageTitle>Crear Sistema</PageTitle>
+
+<EditForm Model="Sistema" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-primary text-white border-bottom-0">
+                <h5 class="card-title">Crear Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="id" class="form-label">Sistema Id</label>
+                    <InputNumber class="form-control" @bind-Value="@Sistema.SistemaId" disabled />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Descripci&oacute;n</label>
+                    <InputTextArea class="form-control" @bind-Value="@Sistema.DescripcionSistema" />
+                    <ValidationMessage For="@(() => Sistema.DescripcionSistema)" />
+                </div>
+                <div class="mb-3">
+                    <label for="complejidad" class="form-label">Complejidad</label>
+                    <InputSelect class="form-select" @bind-Value="@Sistema.Complejidad">
+                        <option value="0">Seleccione una complejidad</option>
+                        <option value="Baja">Baja</option>
+                        <option value="Media">Media</option>
+                        <option value="Alta">Alta</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Sistema.Complejidad)" />
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-center mt-2">
+                <div class="btn-group" role="group" aria-label="Grupo de acciones">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">
+                        <i class="bi bi-plus"></i> Limpiar
+                    </button>
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="bi bi-check-circle-fill"></i> Guardar
+                    </button>
+                    <a href="/Sistemas/Index" class="btn btn-outline-secondary">
+                        <span class="bi bi-arrow-left"></span> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    Sistemas Sistema { get; set; } = new Sistemas();
+
+
+    private async Task Guardar()
+    {
+        try
+        {
+            Sistema.Fecha = Sistema.Fecha.ToUniversalTime();
+            if (await sistemasService.Guardar(Sistema))
+            {
+                toastService.ShowSuccess("Sistema guardado correctamente.");
+                Nuevo();
+            }
+            else
+                toastService.ShowError("Error al guardar el sistema. Verifique los datos ingresados.");
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine($"Error al guardar el sistema: {ex.Message}");
+        }
+    }
+
+    private void Nuevo()
+    {
+        Sistema = new Sistemas();
+    }
+
+
+}
