@@ -97,7 +97,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="8" class="text-center">No se encontraron tickets</td>
+                                <td colspan="8" class="text-center">No se encontraron Sistemas</td>
                             </tr>
                         }
                     </tbody>
@@ -138,8 +138,8 @@
     public List<Sistemas> Sistemas { get; set; } = new();
     public string Filtro { get; set; } = "SistemaId";
     public string ValorFiltro { get; set; } = string.Empty;
-    public DateTime FechaDesde { get; set; } = DateTime.Now;
-    public DateTime FechaHasta { get; set; } = DateTime.Now;
+    public DateTime? FechaDesde { get; set; } = null;
+    public DateTime? FechaHasta { get; set; } = null;
     public bool isLoading { get; set; } = true;
 
     private int CurrentPage { get; set; } = 1;
