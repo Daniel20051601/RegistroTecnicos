@@ -73,17 +73,8 @@ else
                         <h5 class="modal-title">Eliminar Sistema</h5>
                         <button type="button" class="btn-close" @onclick="() => MostrarModal = false" aria-label="Cerrar"></button>
                     </div>
-                    <div class="modal-body text-danger">
-                        <p>¿Est&aacute;s seguro de que deseas eliminar este Ticket?</p>
-                    </div>
-                    <div class="card-header">
-                        <h5 class="card-title text-center"><strong>Datos del Sistema</strong></h5>
-                    </div>
-                    <div class="mb-3 ms-3">
-                        <p><strong>Sistema Id: </strong>@Sistema.SistemaId</p>
-                        <p><strong>Descripci&oacute;n: </strong>@Sistema.DescripcionSistema</p>
-                        <p><strong>Complejidad: </strong>@Sistema.Complejidad</p>
-                        <p><strong>Fecha de Creaci&oacute;n: </strong>@Sistema.Fecha</p>
+                    <div class="modal-body text-danger text-center">
+                        <p><strong>¿Est&aacute;s seguro de que deseas eliminar este Ticket?</strong></p>
                     </div>
                     <div class="modal-footer d-flex justify-content-center">
                         <button type="button" class="btn btn-secondary" @onclick="CerrarModalEliminar">Cancelar</button>
