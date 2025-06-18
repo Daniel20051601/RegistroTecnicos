@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject SistemasService sistemasService
 @inject IToastService toastService
+@inject NavigationManager navigationManager
 
 <PageTitle>Crear Sistema</PageTitle>
 
@@ -64,6 +65,7 @@
             if (await sistemasService.Guardar(Sistema))
             {
                 toastService.ShowSuccess("Sistema guardado correctamente.");
+                navigationManager.NavigateTo("/Sistemas/Index");
                 Nuevo();
             }
             else
