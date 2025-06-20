@@ -13,6 +13,10 @@ public class Contexto : DbContext
 
     public DbSet<Sistemas> Sistemas { get; set; }
 
+    public DbSet<Ventas> Ventas { get; set; }
+
+    public DbSet<VentasDetalle> VentasDetalle { get; set; }
+
     public Contexto(DbContextOptions<Contexto> options) : base(options) { }
 
     public Contexto() { }
