@@ -12,7 +12,6 @@ public class Clientes
 {
     [Key]
     public int ClienteId { get; set; }
-
     public DateTime FechaIngreso { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido")]
@@ -39,4 +38,7 @@ public class Clientes
     public Tecnicos Tecnico { get; set; } = null!;
 
     public ICollection<Tickets> Tickets { get; set; } = new List<Tickets>();
+
+    [InverseProperty("Cliente")]
+    public virtual ICollection<Ventas> Ventas { get; set; } = new List<Ventas>();
 }
