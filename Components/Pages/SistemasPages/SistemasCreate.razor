@@ -8,7 +8,7 @@
 
 <EditForm Model="Sistema" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-    <ValidationSummary />
+
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center bg-primary text-white border-bottom-0">
@@ -33,6 +33,12 @@
                         <option value="Alta">Alta</option>
                     </InputSelect>
                     <ValidationMessage For="@(() => Sistema.Complejidad)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Precio</label>
+                    <InputNumber class="form-control" @bind-Value="Sistema.precio" />
+                    <ValidationMessage For="@(() => Sistema.precio)" />
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-center mt-2">
