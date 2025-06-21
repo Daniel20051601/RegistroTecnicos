@@ -19,6 +19,7 @@ public class Sistemas
     public DateTime Fecha { get; set; } = DateTime.Now;
 
     [Required(ErrorMessage = "Debe agregar la cantidad en Existencia de este Sistema")]
+    [Range(1,10000)]
     public int Existencia { get; set; }
 
     [Required(ErrorMessage = "Debe agregar el precio del Sistema")]
