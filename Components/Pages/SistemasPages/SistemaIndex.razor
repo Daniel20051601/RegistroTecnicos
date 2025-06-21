@@ -75,6 +75,7 @@
                             <th>Descripci&oacute;n</th>
                             <th>Complejidad</th>
                             <th>Precio</th>
+                            <th>Existencia</th>
                             <th>Fecha de Creaci&oacute;n</th>
                             <th>Editar</th>
                         </tr>
@@ -89,6 +90,7 @@
                                     <td>@sistema.DescripcionSistema</td>
                                     <td>@sistema.Complejidad</td>
                                     <td>@sistema.precio.ToString("N2")</td>
+                                    <td>@sistema.Existencia</td>
                                     <td>@sistema.Fecha.ToString("dd/MM/yyyy")</td>
                                     <td>
                                         <a href="/Sistemas/Edit/@sistema.SistemaId" class="btn btn-outline-primary bi bi-pencil-square"></a>
