@@ -295,6 +295,8 @@
         var detalleToRemove = SistemasVenta.FirstOrDefault(d => d.SistemaId == sistemaId);
         if (detalleToRemove != null)
         {
+            SistemaSeleccionadoId = detalleToRemove.SistemaId;
+            CantidadSeleccionada = detalleToRemove.Cantidad;
             SistemasVenta.Remove(detalleToRemove);
             CalcularMontoTotal();
             toastService.ShowInfo("Sistema eliminado de la lista.");
