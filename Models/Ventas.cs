@@ -12,6 +12,7 @@ public class Ventas
     [Required]
     public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
+    [Required(ErrorMessage = "Debe Seleccionar un cliente")]
     public int ClienteId { get; set; }
 
     [InverseProperty("Venta")]
