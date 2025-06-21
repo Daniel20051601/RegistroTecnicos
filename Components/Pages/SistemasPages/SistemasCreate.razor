@@ -40,6 +40,11 @@
                     <InputNumber class="form-control" @bind-Value="Sistema.precio" />
                     <ValidationMessage For="@(() => Sistema.precio)" />
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Existencia</label>
+                    <InputNumber class="form-control" @bind-Value="Sistema.Existencia" />
+                    <ValidationMessage For="@(() => Sistema.Existencia)" />
+                </div>
             </div>
             <div class="card-footer d-flex justify-content-center mt-2">
                 <div class="btn-group" role="group" aria-label="Grupo de acciones">
