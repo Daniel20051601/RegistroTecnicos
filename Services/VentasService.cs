@@ -16,38 +16,54 @@ public class VentasService(IDbContextFactory<Contexto> DbFactory)
     public async Task<bool> Modificar(Ventas venta)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        contexto.Entry(venta).State = EntityState.Modified;
-        var detallesExistentes = await contexto.VentasDetalle
-                                               .Where(d => d.VentaId == venta.VentaId)
-                                               .ToListAsync();
 
-        foreach (var detalleExistente in detallesExistentes)
+        contexto.Entry(venta).State = EntityState.Modified;
+
+        var detallesExistentesEnDb = await contexto.VentasDetalle
+                                                   .Where(d => d.VentaId == venta.VentaId)
+                                                   .AsNoTracking()
+                                                   .ToListAsync();
+
+        foreach (var detalleExistente in detallesExistentesEnDb)
         {
             if (!venta.VentasDetalles.Any(d => d.VentasDetalleId == detalleExistente.VentasDetalleId))
             {
-                contexto.VentasDetalle.Remove(detalleExistente);
+                contexto.Entry(detalleExistente).State = EntityState.Deleted;
             }
         }
 
         foreach (var detalleNuevoOModificado in venta.VentasDetalles)
         {
-            if (detalleNuevoOModificado.VentasDetalleId == 0) 
+            if (detalleNuevoOModificado.Sistema != null && detalleNuevoOModificado.Sistema.SistemaId > 0)
+            {
+                contexto.Entry(detalleNuevoOModificado.Sistema).State = EntityState.Unchanged;
+            }
+
+            if (venta.Cliente != null && venta.Cliente.ClienteId > 0)
+            {
+                contexto.Entry(venta.Cliente).State = EntityState.Unchanged;
+            }
+
+
+            if (detalleNuevoOModificado.VentasDetalleId == 0)
             {
                 detalleNuevoOModificado.VentaId = venta.VentaId;
                 contexto.VentasDetalle.Add(detalleNuevoOModificado);
-
-                if (detalleNuevoOModificado.Sistema != null && detalleNuevoOModificado.Sistema.SistemaId > 0)
-                {
-                    contexto.Entry(detalleNuevoOModificado.Sistema).State = EntityState.Unchanged;
-                }
             }
-            else 
+            else
             {
-                contexto.Entry(detalleNuevoOModificado).State = EntityState.Modified;
+                var existingEntry = contexto.ChangeTracker.Entries<VentasDetalle>()
+                                                          .FirstOrDefault(e => e.Entity.VentasDetalleId == detalleNuevoOModificado.VentasDetalleId);
 
-                if (detalleNuevoOModificado.Sistema != null && detalleNuevoOModificado.Sistema.SistemaId > 0)
+                if (existingEntry == null)
                 {
-                    contexto.Entry(detalleNuevoOModificado.Sistema).State = EntityState.Unchanged;
+                    contexto.VentasDetalle.Attach(detalleNuevoOModificado);
+                    contexto.Entry(detalleNuevoOModificado).State = EntityState.Modified;
+                }
+                else
+                {
+                    existingEntry.CurrentValues.SetValues(detalleNuevoOModificado);
+                    existingEntry.State = EntityState.Modified;
                 }
             }
         }
@@ -58,6 +74,7 @@ public class VentasService(IDbContextFactory<Contexto> DbFactory)
     public async Task<bool> Insertar(Ventas venta)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
+
         foreach (var detalle in venta.VentasDetalles)
         {
             if (detalle.Sistema != null && detalle.Sistema.SistemaId > 0)
@@ -65,14 +82,18 @@ public class VentasService(IDbContextFactory<Contexto> DbFactory)
                 contexto.Entry(detalle.Sistema).State = EntityState.Unchanged;
             }
         }
+        if (venta.Cliente != null && venta.Cliente.ClienteId > 0)
+        {
+            contexto.Entry(venta.Cliente).State = EntityState.Unchanged;
+        }
 
-        contexto.Ventas.Add(venta); 
+        contexto.Ventas.Add(venta);
         return await contexto.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> Guardar(Ventas venta)
     {
-        if (venta.VentaId == 0 || !await Existe(venta.VentaId))
+        if (venta.VentaId == 0)
         {
             return await Insertar(venta);
         }
@@ -89,6 +110,7 @@ public class VentasService(IDbContextFactory<Contexto> DbFactory)
             .Include(c => c.Cliente)
             .Include(v => v.VentasDetalles)
                 .ThenInclude(s => s.Sistema)
+            .AsNoTracking()
             .FirstOrDefaultAsync(v => v.VentaId == ventaId);
     }
 
